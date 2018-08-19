@@ -222,3 +222,12 @@ if ('serviceWorker' in navigator) {
     })
 
 }
+/**
+ * Helper to get the base url for routes and assets
+ */
+export const getBaseUrl = () => {
+    let baseUrl = window.location.origin;
+    if (window.location.pathname.includes(config.ghPagesName)) baseUrl += '/restaurant-app';
+
+    return baseUrl;
+}
