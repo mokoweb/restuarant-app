@@ -385,10 +385,17 @@ nav h1 a {
 	font-weight: 600;
 	letter-spacing: 2px;
 }
-
-
+.review-title {
+	padding-left: 10px;
+    color: #b7410e;
+    letter-spacing: 2px;
+}
+tr:nth-child(even) {background: #CCC}
+tr:nth-child(odd) {background: #FFF}
 
 #restaurant-hours {
+  width: 100%;
+  letter-spacing: 2px;
   border-collapse: collapse;
 }
 
