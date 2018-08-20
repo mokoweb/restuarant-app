@@ -342,7 +342,20 @@ nav h1 a {
   flex-wrap: wrap;
   list-style-type: none;
 }
+.skip-map {
+	position: absolute;
+	top: -40px;
+	left: 0;
+	background: #b7410e !important;
+	color: white !important;
+	padding: 0.5em;
+	z-index: 100;
+	transition: all 0.5s;
+}
 
+.skip-map:focus {
+	top: 0;
+}
 /**===========user defined styles=====**/
 .stars-rating {
   font-size: 17px;

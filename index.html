@@ -16,21 +16,22 @@
 <body>
   <header>
     <nav>
-      <h1 class="spaceUp"><a href="/">Restaurant Reviews</a></h1>
+      <h1><a href="/">Restaurant Reviews</a></h1>
     </nav>
   </header>
 
   <main id="maincontent">
     <section id="map-container">
-      <div id="map" role="application" ></div>
+      <div id="map" role="application" aria-label="map with restaurants" > 
+	  <a href="#skipmap" class="skip-map" >Skip map to next content</a> </div>
     </section>
-    <section>
-      <div class="filter-options">
+    <section >
+      <div class="filter-options" id="skip-map" aria-label="filter neighborhood restaurants">
         <h2>Filter Results</h2>
-        <select id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
+        <select  aria-label="select a neighborhood from drop down to filter by" id="neighborhoods-select" name="neighborhoods" onchange="updateRestaurants()">
           <option value="all">All Neighborhoods</option>
         </select>
-        <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()">
+        <select id="cuisines-select" name="cuisines" onchange="updateRestaurants()" aria-label="select a cuisine from the drop down to filter by" >
           <option value="all">All Cuisines</option>
         </select>
       </div>
