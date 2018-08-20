@@ -224,7 +224,7 @@ if ('serviceWorker' in navigator) {
 }
 /**
  * Helper to get the base url for routes and assets */
-export const getBaseUrl = () => {
+const getBaseUrl = () => {
     let baseUrl = window.location.origin;
     if (window.location.pathname.includes(config.ghPagesName)) baseUrl += 'https://mokoweb.github.io/mws-restaurant-stage-1/data/restaurants.json';
 
