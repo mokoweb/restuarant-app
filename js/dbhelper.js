@@ -9,8 +9,8 @@ class DBHelper {
    */
  static get DATABASE_URL() {
     const port = 8000; // Change this to your server port
-   // return './data/restaurants.json';
-	return 'https://mokoweb.github.io/restuarant-app/data/restaurants.json';
+    return './data/restaurants.json';
+	//return 'https://mokoweb.github.io/restuarant-app/data/restaurants.json';
   }
 
   /**
