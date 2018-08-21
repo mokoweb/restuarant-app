@@ -210,23 +210,53 @@ addMarkersToMap = (restaurants = self.restaurants) => {
   });
 } */
 
-if ('serviceWorker' in navigator) {
-
-  navigator.serviceWorker
-    .register('./sw.js', { scope: './' })
-    .then(function(registration) {
-      console.log("Service Worker Registered");
-    })
-    .catch(function(err) {
-      console.log("Service Worker Failed to Register", err);
-    })
-
-}
 /**
- * Helper to get the base url for routes and assets */
+ * Service worker functions below
+ */
+registerServiceWorker = ()=>{
+  if (!navigator.serviceWorker) return;
+
+  navigator.serviceWorker.register('/sw.js').then((reg)=> {
+    if (!navigator.serviceWorker.controller) {
+      return;
+    }
+
+    if (reg.waiting) {
+      console.log('[ServiceWorker] is waiting - call update sw');
+      updateWorker(reg.waiting);
+      return;
+    }
+
+    if (reg.installing) {
+      console.log('[ServiceWorker] is installing - call to track Installing sw');
+      trackInstalling(reg.installing);
+      return;
+    }
+
+    reg.addEventListener('updatefound', ()=> {
+      console.log('[ServiceWorker] is installing - call to track Installing sw');
+      trackInstalling(reg.installing);
+    });
+  });
+};
+trackInstalling = (worker)=> {
+  worker.addEventListener('statechange', function() {
+    console.log('[ServiceWorker] statechange -trackInstalling');
+    if (worker.state == 'installed') {
+      updateWorker(worker);
+    }
+  });
+};
+updateWorker = (worker)=> {
+  console.log('[ServiceWorker] action to update worker called -skipWaiting');
+  worker.postMessage({action: 'skipWaiting'});
+};
+
+/**
+ * Helper to get the base url for routes and assets 
 const getBaseUrl = () => {
     let baseUrl = window.location.origin;
     if (window.location.pathname.includes(config.ghPagesName)) baseUrl += 'https://mokoweb.github.io/restuarant-app/data/restaurants.json';
 
     return baseUrl;
-}  
+}  */
