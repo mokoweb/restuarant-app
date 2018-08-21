@@ -223,10 +223,10 @@ if ('serviceWorker' in navigator) {
 
 }
 /**
- * Helper to get the base url for routes and assets */
+ * Helper to get the base url for routes and assets 
 const getBaseUrl = () => {
     let baseUrl = window.location.origin;
     if (window.location.pathname.includes(config.ghPagesName)) baseUrl += 'https://mokoweb.github.io/restuarant-app/data/restaurants.json';
 
     return baseUrl;
-}  
+}  */
