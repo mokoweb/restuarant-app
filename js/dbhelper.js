@@ -89,6 +89,18 @@ static storeResponseToIDB(restaurants){
 
    }
 
+   static fetchDataFromIDB(){
+  return DBHelper.OpenIndexDB().then(db => {
+    if(!db) return;
+    let Dbstore = db
+    .transaction("restaurantDB")
+    .objectStore("restaurantDB");
+
+    return Dbstore.getAll();
+  });
+
+   }
+
   /**
    * Fetch a restaurant by its ID.
    */
