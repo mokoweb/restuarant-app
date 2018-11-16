@@ -37,6 +37,25 @@ class DBHelper {
     })
   }
 
+static OpenIndexDB(){
+  //service worker
+  if (!window.navigator.serviceWorker){
+        console.error('ServiceWorker registration failed');
+    return Promise.resolve();
+  }
+  
+  //for indexDB
+
+  let dbPromise = idb.open('restaurant-db', 1, (upgradeDb) =>{
+      
+    let DbStore = upgradeDb.createObjectStore('restaurantDB', {
+      keyPath: 'id'
+    });
+    DbStore.createIndex("use-id", "id");
+  });
+  return dbPromise;
+}
+
 
   /**
    * Fetch a restaurant by its ID.
