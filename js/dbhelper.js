@@ -56,6 +56,20 @@ static OpenIndexDB(){
   return dbPromise;
 }
 
+ /**
+   * get restaurants data from the server
+   */
+static fetchRestaurantFromServer() {
+  return fetch(DBHelper.DATABASE_URL)
+    .then(resp => {
+      return resp.json();
+    })
+    .then(restaurants => {
+      DBHelper.storeResponseToIDB(restaurants);
+      return restaurants;
+    });
+
+   }
 
   /**
    * Fetch a restaurant by its ID.
