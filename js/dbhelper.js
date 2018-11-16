@@ -220,9 +220,10 @@ static storeResponseToIDB(restaurants){
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
+    if(restaurant.photograph === undefined)
+      return (`/img/15.jpg`);
     return (`/img/${restaurant.photograph}.jpg`);
   }
-
   /**
    * Map marker for a restaurant.
    */
