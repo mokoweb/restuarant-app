@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   initMap(); // added 
   fetchNeighborhoods();
   fetchCuisines();
+  registerServiceWorker();
 });
 
 /**
@@ -19,7 +20,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 fetchNeighborhoods = () => {
   DBHelper.fetchNeighborhoods((error, neighborhoods) => {
     if (error) { // Got an error
-      console.error(error);
+     // console.error("I am here", error);
     } else {
       self.neighborhoods = neighborhoods;
       fillNeighborhoodsHTML();
@@ -211,8 +212,8 @@ addMarkersToMap = (restaurants = self.restaurants) => {
 } */
 
 /**
- * Service worker functions below
- */
+ * Service worker functions below **/
+ 
 registerServiceWorker = ()=>{
   if (!navigator.serviceWorker) return;
 
@@ -239,24 +240,3 @@ registerServiceWorker = ()=>{
     });
   });
 };
-trackInstalling = (worker)=> {
-  worker.addEventListener('statechange', function() {
-    console.log('[ServiceWorker] statechange -trackInstalling');
-    if (worker.state == 'installed') {
-      updateWorker(worker);
-    }
-  });
-};
-updateWorker = (worker)=> {
-  console.log('[ServiceWorker] action to update worker called -skipWaiting');
-  worker.postMessage({action: 'skipWaiting'});
-};
-
-/**
- * Helper to get the base url for routes and assets 
-const getBaseUrl = () => {
-    let baseUrl = window.location.origin;
-    if (window.location.pathname.includes(config.ghPagesName)) baseUrl += 'https://mokoweb.github.io/restuarant-app/data/restaurants.json';
-
-    return baseUrl;
-}  */
