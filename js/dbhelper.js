@@ -351,7 +351,7 @@ class DBHelper {
     .then(data =>{ // Success response from server!
       callback(null, data);
     })
-    .catch((err)=>{ // Any errors.
+    .catch(err =>{ // Any errors.
     
      callback(err, null);
     })
