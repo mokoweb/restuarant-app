@@ -334,30 +334,8 @@ class DBHelper {
 
   return `http://localhost:${port}/restaurants`;
   }
-
-    /**
-   * Fetch all restaurants. **/
-   
-   static fetchRestaurants(callback) {
-     DBHelper.fetchDataFromIDB()
-      .then(restaurants => {
-
-        if(!restaurants.length) {
-          //console.log('fetching from server');
-           DBHelper.fetchRestaurantFromServer();
-        }
-        return Promise.resolve(restaurants);
-      })
-    .then(data =>{ // Success response from server!
-      callback(null, data);
-    })
-    .catch(err =>{ // Any errors.
-    
-     callback(err, null);
-    })
-  }
-
-static OpenIndexDB(){
+  
+  static OpenIndexDB(){
   //service worker
   if (!window.navigator.serviceWorker){
         console.error('ServiceWorker registration failed');
@@ -375,6 +353,30 @@ static OpenIndexDB(){
   });
   return dbPromise;
 }
+
+    /**
+   * Fetch all restaurants. **/
+   
+   static fetchRestaurants(callback) {
+     return DBHelper.fetchDataFromIDB()
+      .then(restaurants => {
+
+        if(!restaurants.length) {
+          //console.log('fetching from server');
+           return DBHelper.fetchRestaurantFromServer();
+        }
+        return Promise.resolve(restaurants);
+      })
+    .then(data =>{ // Success response from server!
+      callback(null, data);
+    })
+    .catch(err =>{ // Any errors.
+    
+     callback(err, null);
+    })
+  }
+
+
 
  /**
    * get restaurants data from the server
