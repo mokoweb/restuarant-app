@@ -160,16 +160,16 @@ createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
   const favBtn = document.createElement('button');
-  favBtn.className = 'fav-btn';
+  favBtn.className = 'fas fa-heart';
   favBtn.setAttribute('aria-label', 'favorite');
   if (restaurant.is_favorite === 'true') {
     favBtn.classList.add('active');
     favBtn.setAttribute('aria-pressed', 'true');
-    favBtn.innerHTML = `Click To Remove ${restaurant.name} as a Favorite`;
+    //favBtn.innerHTML = `Click To Remove ${restaurant.name} as a Favorite`;
     favBtn.title = `Click To Remove ${restaurant.name} as a Favorite`;
   } else {
     favBtn.setAttribute('aria-pressed', 'false');
-    favBtn.innerHTML = `Click To Add ${restaurant.name} as a Favorite`;
+    //favBtn.innerHTML = `Click To Add ${restaurant.name} as a Favorite`;
     favBtn.title = `Add ${restaurant.name} as a favorite`;
   }
 
@@ -178,12 +178,12 @@ createRestaurantHTML = (restaurant) => {
     evt.preventDefault();
     if (favBtn.classList.contains('active')) {
       favBtn.setAttribute('aria-pressed', 'false');
-      favBtn.innerHTML = `Click To Add ${restaurant.name} as a favorite`;
+      //favBtn.innerHTML = `Click To Add ${restaurant.name} as a favorite`;
       favBtn.title = `Click To Add ${restaurant.name} as a favorite`;
       DBHelper.unSetFavorite(restaurant.id);
     } else {
       favBtn.setAttribute('aria-pressed', 'true');
-      favBtn.innerHTML = `Click To Remove ${restaurant.name} as a favorite`;
+      //favBtn.innerHTML = `Click To Remove ${restaurant.name} as a favorite`;
       favBtn.title = `Click To Remove ${restaurant.name} as a favorite`;
       DBHelper.setFavorite(restaurant.id);
     }
