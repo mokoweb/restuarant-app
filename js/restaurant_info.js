@@ -86,6 +86,19 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
 
+//favourite button 
+   const fav = document.getElementById('restaurant-fav');
+  if (restaurant.is_favorite === 'true') {
+    fav.classList.add('active');
+    fav.setAttribute('aria-pressed', 'true');
+    fav.innerHTML = `Click to Remove ${restaurant.name} as a favorite`;
+    fav.title = `Click to Remove ${restaurant.name} as a favorite`;
+  } else {
+    fav.setAttribute('aria-pressed', 'false');
+    fav.innerHTML = `Click to Add ${restaurant.name} as a favorite`;
+    fav.title = `Click to Add ${restaurant.name} as a favorite`;
+  }
+
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img'
   image.alt =  `image of ${restaurant.name}`;
