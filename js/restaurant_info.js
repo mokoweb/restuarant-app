@@ -255,3 +255,10 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+//Modal control
+const toggleModal = (evt) => {
+  evt.preventDefault();
+  const modal = document.getElementById('modal');
+  modal.classList.toggle('show');
+};
