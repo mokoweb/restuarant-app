@@ -207,8 +207,7 @@ date.innerHTML = ` | ${review.date}`;
  	li.appendChild(body);
 
  	
-	
-	 // I got his star rating function online and customized it
+	 // I got this star rating function online and customized it
   const ratings = document.createElement('div');
 
   for (let i = 1; i <= 5; i++) {

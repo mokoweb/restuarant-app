@@ -20,6 +20,11 @@
 </head>
 
 <body class="inside">
+  <div id="modal">
+    <button class="close-btn" onclick="toggleModal(event)" aria-label="close"
+            title="Close">x</button>
+    <div id="review-form"></div>
+  </div>
   <!-- Beginning header -->
   <header>
     <!-- Beginning nav -->
@@ -56,6 +61,7 @@
     <!-- end restaurant -->
     <!-- Beginning reviews -->
     <section id="reviews-container">
+        <div id="reviews-header"></div>
       <ul id="reviews-list"></ul>
     </section>
     <!-- End reviews -->
