@@ -80,6 +80,7 @@ fetchRestaurantFromURL = (callback) => {
  * Create restaurant HTML and add it to the webpage
  */
 fillRestaurantHTML = (restaurant = self.restaurant) => {
+  
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
 
@@ -91,11 +92,11 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   if (restaurant.is_favorite === 'true') {
     fav.classList.add('active');
     fav.setAttribute('aria-pressed', 'true');
-    fav.innerHTML = `Click to Remove ${restaurant.name} as a favorite`;
+    //fav.innerHTML = `Click to Remove ${restaurant.name} as a favorite`;
     fav.title = `Click to Remove ${restaurant.name} as a favorite`;
   } else {
     fav.setAttribute('aria-pressed', 'false');
-    fav.innerHTML = `Click to Add ${restaurant.name} as a favorite`;
+    //fav.innerHTML = `Click to Add ${restaurant.name} as a favorite`;
     fav.title = `Click to Add ${restaurant.name} as a favorite`;
   }
 
@@ -104,12 +105,12 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     evt.preventDefault();
     if (fav.classList.contains('active')) {
       fav.setAttribute('aria-pressed', 'false');
-      fav.innerHTML = `Click to Add ${restaurant.name} as a favorite`;
+      //fav.innerHTML = `Click to Add ${restaurant.name} as a favorite`;
       favorite.title = `Click to Add ${restaurant.name} as a favorite`;
       DBHelper.unSetFavorite(restaurant.id);
     } else {
       favorite.setAttribute('aria-pressed', 'true');
-      favorite.innerHTML = `Click to Remove ${restaurant.name} as a favorite`;
+      //favorite.innerHTML = `Click to Remove ${restaurant.name} as a favorite`;
       favorite.title = `Click to Remove ${restaurant.name} as a favorite`;
       DBHelper.setFavorite(restaurant.id);
     }
@@ -130,6 +131,7 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   }
   // fill reviews
   fillReviewsHTML();
+  DBHelper.fetchReviewsById(restaurant.id, fillReviewsHTML);
 }
 
 /**
@@ -155,7 +157,12 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+const fillReviewsHTML = (error, reviews) => {
+  self.restaurant.reviews = reviews;
+
+  if (error) {
+    console.log('Error retrieving reviews', error);
+  }
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
   title.className = 'review-title';
