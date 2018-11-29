@@ -559,6 +559,21 @@ static storeResponseToIDB(restaurants){
       marker.addTo(newMap);
     return marker;
   } 
+
+
+//functions to mark and Unmark Favorite button
+  static setFavorite(id) {
+  fetch(`${DBHelper.DATABASE_URL}/restaurants/${id}/?is_favorite=true`, {
+    method: 'PUT'
+  });
+}
+
+// http://localhost:1337/restaurants/<restaurant_id>/?is_favorite=false
+static unSetFavorite(id) {
+  fetch(`${DBHelper.DATABASE_URL}/restaurants/${id}/?is_favorite=false`, {
+    method: 'PUT'
+  });
+}
   /* static mapMarkerForRestaurant(restaurant, map) {
     const marker = new google.maps.Marker({
       position: restaurant.latlng,
