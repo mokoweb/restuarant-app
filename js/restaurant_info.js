@@ -99,6 +99,23 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     fav.title = `Click to Add ${restaurant.name} as a favorite`;
   }
 
+  //add event listener to the fav button
+  fav.addEventListener('click', (evt) => {
+    evt.preventDefault();
+    if (fav.classList.contains('active')) {
+      fav.setAttribute('aria-pressed', 'false');
+      fav.innerHTML = `Click to Add ${restaurant.name} as a favorite`;
+      favorite.title = `Click to Add ${restaurant.name} as a favorite`;
+      DBHelper.unSetFavorite(restaurant.id);
+    } else {
+      favorite.setAttribute('aria-pressed', 'true');
+      favorite.innerHTML = `Click to Remove ${restaurant.name} as a favorite`;
+      favorite.title = `Click to Remove ${restaurant.name} as a favorite`;
+      DBHelper.setFavorite(restaurant.id);
+    }
+    favorite.classList.toggle('active');
+  });
+
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img'
   image.alt =  `image of ${restaurant.name}`;
