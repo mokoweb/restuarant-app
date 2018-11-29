@@ -163,11 +163,25 @@ const fillReviewsHTML = (error, reviews) => {
   if (error) {
     console.log('Error retrieving reviews', error);
   }
+
+  const header = document.getElementById('reviews-header');
+
+
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
   title.className = 'review-title';
   title.innerHTML = 'Reviews';
   container.appendChild(title);
+
+  //add review button
+  const addReview = document.createElement('button');
+  addReview.classList.add('review-add-btn');
+  addReview.innerHTML = '+';
+  addReview.setAttribute('aria-label', 'add review');
+  addReview.title = 'Add Review';
+  addReview.addEventListener('click', toggleModal);
+  header.appendChild(addReview);
+
 
   if (!reviews) {
     const noReviews = document.createElement('p');
