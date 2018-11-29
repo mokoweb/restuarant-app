@@ -560,7 +560,13 @@ static storeResponseToIDB(restaurants){
     return marker;
   } 
 
-
+//grab all reviews using id
+  static fetchReviewsById(id, callback) {
+    fetch(`${DBHelper.DATABASE_URL}/reviews/?restaurant_id=${id}`)
+      .then(resp => resp.json())
+      .then(data => callback(null, data))
+      .catch(err => callback(err, null));
+  }
 //functions to mark and Unmark Favorite button
   static setFavorite(id) {
   fetch(`${DBHelper.DATABASE_URL}/restaurants/${id}/?is_favorite=true`, {
