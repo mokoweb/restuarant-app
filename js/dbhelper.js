@@ -569,13 +569,16 @@ static storeResponseToIDB(restaurants){
   }
 //functions to mark and Unmark Favorite button
   static setFavorite(id) {
+    //console.log('favorite restuarant ID:', id)
   fetch(`${DBHelper.DATABASE_URL}/restaurants/${id}/?is_favorite=true`, {
     method: 'PUT'
   });
 }
 
+
 // http://localhost:1337/restaurants/<restaurant_id>/?is_favorite=false
 static unSetFavorite(id) {
+   //console.log('favorite restuarant ID:' + id)
   fetch(`${DBHelper.DATABASE_URL}/restaurants/${id}/?is_favorite=false`, {
     method: 'PUT'
   });
