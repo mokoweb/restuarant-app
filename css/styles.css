@@ -498,6 +498,64 @@ tr:nth-child(odd) {background: #FFF}
   }
 }
 
+/* modal and review button styling from james -temp*/
+
+#reviews-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+#reviews-container .review-add-btn {
+  padding: 0 8px;
+  font-size: 1.6em;
+  cursor: pointer;
+}
+#modal {
+  /* begin css tricks */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* end css tricks */
+  z-index: -10;
+  display: flex;
+  flex-direction: column;
+  width: 80vw;
+  height: 80vh;
+  border: 1px solid #666;
+  border-radius: 10px;
+  opacity: 0;
+  transition: all .3s;
+  overflow: hidden;
+  background-color: #eee;
+}
+#modal.show {
+  opacity: 1;
+  z-index: 10;
+}
+#modal .close-btn {
+  align-self: flex-end;
+  font-size: 1.6em;
+  margin: 8px;
+  padding: 0 8px;
+  cursor: pointer;
+}
+#review-form {
+  width: 100%;
+  padding: 20px 26px;
+  color: #333;
+  overflow-y: auto;
+}
+
+
+
+
+
+
+
+
+
+
 @media screen and (min-width: 600px) {
   #restaurants-list li {
     width: calc((100% - 2 * (3em + 4px)) / 2);
