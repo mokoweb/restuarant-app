@@ -87,34 +87,37 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
 
-//favourite button 
-   const fav = document.getElementById('restaurant-fav');
+const favBtn = document.createElement('button');
+  favBtn.className = 'fas fa-heart';
+  favBtn.setAttribute('aria-label', 'favorite');
   if (restaurant.is_favorite === 'true') {
-    fav.classList.add('active');
-    fav.setAttribute('aria-pressed', 'true');
-    //fav.innerHTML = `Click to Remove ${restaurant.name} as a favorite`;
-    fav.title = `Click to Remove ${restaurant.name} as a favorite`;
+    favBtn.classList.add('active');
+    favBtn.setAttribute('aria-pressed', 'true');
+    //favBtn.innerHTML = `Click To Remove ${restaurant.name} as a Favorite`;
+    favBtn.title = `Click To Remove ${restaurant.name} as a Favorite`;
   } else {
-    fav.setAttribute('aria-pressed', 'false');
-    //fav.innerHTML = `Click to Add ${restaurant.name} as a favorite`;
-    fav.title = `Click to Add ${restaurant.name} as a favorite`;
+    favBtn.setAttribute('aria-pressed', 'false');
+    //favBtn.innerHTML = `Click To Add ${restaurant.name} as a Favorite`;
+    favBtn.title = `Add ${restaurant.name} as a favorite`;
   }
 
-  //add event listener to the fav button
-  fav.addEventListener('click', (evt) => {
+  //add a listener to the FavBtn
+  favBtn.addEventListener('click', (evt) => {
     evt.preventDefault();
-    if (fav.classList.contains('active')) {
-      fav.setAttribute('aria-pressed', 'false');
-      //fav.innerHTML = `Click to Add ${restaurant.name} as a favorite`;
-      favorite.title = `Click to Add ${restaurant.name} as a favorite`;
+    if (favBtn.classList.contains('active')) {
+      favBtn.setAttribute('aria-pressed', 'false');
+      //favBtn.innerHTML = `Click To Add ${restaurant.name} as a favorite`;
+      favBtn.title = `Click To Add ${restaurant.name} as a favorite`;
       DBHelper.unSetFavorite(restaurant.id);
     } else {
-      favorite.setAttribute('aria-pressed', 'true');
-      //favorite.innerHTML = `Click to Remove ${restaurant.name} as a favorite`;
-      favorite.title = `Click to Remove ${restaurant.name} as a favorite`;
+      favBtn.setAttribute('aria-pressed', 'true');
+      //favBtn.innerHTML = `Click To Remove ${restaurant.name} as a favorite`;
+      favBtn.title = `Click To Remove ${restaurant.name} as a favorite`;
       DBHelper.setFavorite(restaurant.id);
     }
-    favorite.classList.toggle('active');
+    favBtn.classList.toggle('active');
+ 
+  li.append(favBtn);
   });
 
   const image = document.getElementById('restaurant-img');
