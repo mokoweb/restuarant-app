@@ -327,8 +327,11 @@ class DBHelper {
    * Database URL.
    * Change this to restaurants.json file location on your server.
    */
+   
  static get DATABASE_URL() {
-    const port = 1337; // Change this to your server port
+
+    // Change this to your server port
+    const port = 1337; 
     //return './data/restaurants.json';
   //return 'https://mokoweb.github.io/restaurant-app/data/restaurants.json';
 
@@ -562,7 +565,7 @@ static storeResponseToIDB(restaurants){
 
 //grab all reviews using id
   static fetchReviewsById(id, callback) {
-    fetch(`${DBHelper.DATABASE_URL}/reviews/?restaurant_id=${id}`)
+    fetch(`http://localhost:1337/reviews/?restaurant_id=${id}`)
       .then(resp => resp.json())
       .then(data => callback(null, data))
       .catch(err => callback(err, null));
