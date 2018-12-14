@@ -165,14 +165,13 @@ const fillReviewsHTML = (error, reviews) => {
     console.log('Error retrieving reviews', error);
   }
 
+ 
+const container = document.getElementById('reviews-container');
   const header = document.getElementById('reviews-header');
-
-
-  const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
   title.className = 'review-title';
   title.innerHTML = 'Reviews';
-  container.appendChild(title);
+  header.appendChild(title);
 
   //add review button
   const addReview = document.createElement('button');
@@ -181,20 +180,20 @@ const fillReviewsHTML = (error, reviews) => {
   addReview.setAttribute('aria-label', 'add review');
   addReview.title = 'Add Review';
   addReview.addEventListener('click', toggleModal);
-  header.appendChild(addReview);
+  container.appendChild(addReview);
 
 
   if (!reviews) {
     const noReviews = document.createElement('p');
     noReviews.innerHTML = 'No reviews yet!';
-    container.appendChild(noReviews);
+    header.appendChild(noReviews);
     return;
   }
   const ul = document.getElementById('reviews-list');
   reviews.forEach(review => {
     ul.appendChild(createReviewHTML(review));
   });
-  container.appendChild(ul);
+  header.appendChild(ul);
 }
 
 /**
