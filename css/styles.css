@@ -247,30 +247,6 @@ nav h1 a {
   text-transform: uppercase;
 }
 
-#restaurants-list .fav-control {
-  background-color: white;
-  width: 44px;
-  height: 40px;
-  position: absolute;
-  align-self: flex-end;
-  margin-top: 6px;
-  margin-left: -6px;
-  padding: 5px;
-  border: 1px solid #999;
-  border: 4px double #999;
-  background-image: url('../img/fixed/favorite5.png');
-  background-repeat: no-repeat;
-  background-position: 6px -26px;
-  background-size: 24px;
-  cursor: pointer;
-  text-indent: -10000px;
-}
-#restaurants-list .fav-control.active  {
-  background-position: 6px 5px;
-}
-#restaurants-list .fav-control:hover {
-  background-position: 6px -59px;
-}
 
 #restaurant-img-container {
   display: flex;
@@ -296,6 +272,7 @@ button.fas.fa-heart:hover {
 button.fas.fa-heart.active {
     color: #ff0016;
     background-color: #252831;
+    font-size: : x-large;
 }
 
 
