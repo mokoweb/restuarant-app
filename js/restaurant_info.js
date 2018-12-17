@@ -165,8 +165,7 @@ const fillReviewsHTML = (error, reviews) => {
     console.log('Error retrieving reviews', error);
   }
 
- 
-const container = document.getElementById('reviews-container');
+  const container = document.getElementById('reviews-container');
   const header = document.getElementById('reviews-header');
   const title = document.createElement('h3');
   title.className = 'review-title';
@@ -184,6 +183,7 @@ const container = document.getElementById('reviews-container');
 
 
   if (!reviews) {
+    console.log(' i am here', reviews);
     const noReviews = document.createElement('p');
     noReviews.innerHTML = 'No reviews yet!';
     header.appendChild(noReviews);
