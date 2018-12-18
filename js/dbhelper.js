@@ -563,7 +563,7 @@ static storeResponseToIDB(restaurants){
     return marker;
   } 
 
-//grab all reviews using id
+//grab all reviews of a restaurant using id
   static fetchReviewsById(id, callback) {
     fetch(`http://localhost:1337/reviews/?restaurant_id=${id}`)
       .then(resp => resp.json())
@@ -588,22 +588,24 @@ static unSetFavorite(id) {
 }
 
 // http://localhost:1337/reviews/
-static createRestaurantReview(id, name, rating, comments, callback) {
+static createRestaurantReview(id, name, rating, comments) {
   const data = {
     'restaurant_id': id,
     'name': name,
     'rating': rating,
     'comments': comments
   };
-  fetch(DBHelper.DATABASE_URL + '/reviews/', {
+  fetch('http://localhost:1337/reviews/', {
     headers: { 'Content-Type': 'application/form-data' },
     method: 'POST',
     body: JSON.stringify(data)
   })
     .then(response => response.json())
-    .then(data => callback(null, data))
-    .catch(err => callback(err, null));
+    .then(window.location.href = `/restaurant.html?id=${self.restaurant.id}`)
+	.catch(err => console.error(err));
 }
+//createRestaurantReview(id, name, rating, comments);
+
   /* static mapMarkerForRestaurant(restaurant, map) {
     const marker = new google.maps.Marker({
       position: restaurant.latlng,
