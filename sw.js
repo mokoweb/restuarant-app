@@ -47,8 +47,28 @@ self.addEventListener('install', function(event) {
 
 
 self.addEventListener('fetch', function(event) {
+	
+	var request = event.request;
+  if (request.method === "POST") {
+    event.respondWith(
+          // Try to POST form data to server
+          fetch(request)
+          .catch(function() {
+          // If it doesn't work, post a message to reassure user
+          self.clients.matchAll().then(function (clients){
+            clients.forEach(function(client){
+              client.postMessage({
+                msg: "Post unsuccessful! Server will be updated when connection is re-established.",
+                url: request.url
+              });
+            });
+          });
+        })
+          )}
+	
+	
   event.respondWith(
-    caches.match(event.request)
+    caches.match(request)
       .then(function(response) {
         // Cache hit - return response
         if (response) {
@@ -59,7 +79,7 @@ self.addEventListener('fetch', function(event) {
         // can only be consumed once. Since we are consuming this
         // once by cache and once by the browser for fetch, we need
         // to clone the response.
-        var fetchRequest = event.request.clone();
+        var fetchRequest = request.clone();
 
         return fetch(fetchRequest).then(
           function(response) {
@@ -76,7 +96,7 @@ self.addEventListener('fetch', function(event) {
 
             caches.open(CACHE_NAME)
               .then(function(cache) {
-                cache.put(event.request, responseToCache);
+                cache.put(request, responseToCache);
               });
 
             return response;
