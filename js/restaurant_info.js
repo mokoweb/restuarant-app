@@ -169,13 +169,16 @@ const fillReviewsHTML = (error, reviews) => {
 
 
   //add review button
+  //<button class="btn btn-success btn-lg btn-block" data-toggle="modal" data-target="#myModal">
   const header = document.getElementById('reviews-header');
   const addReview = document.createElement('button');
-  addReview.classList.add('review-add-btn');
-  addReview.innerHTML = '+';
+  addReview.classList.add('btn', 'btn-success');
+  addReview.innerHTML = 'Add a Review'; 
+  addReview.setAttribute('data-toggle', 'modal');
+  addReview.setAttribute('data-target', '#myModal');
   addReview.setAttribute('aria-label', 'add review');
   addReview.title = 'Click To Add a Review';
-  addReview.addEventListener('click', toggleModal);
+  //addReview.addEventListener('click', toggleModal);
   header.appendChild(addReview);
   
   const container = document.getElementById('reviews-container');
@@ -311,186 +314,77 @@ getParameterByName = (name, url) => {
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
-//Modal control
-const toggleModal = (evt) => {
-  evt.preventDefault();
-  const modal = document.getElementById('modal');
-  modal.classList.toggle('show');
-};
+/*
+This function is really long. This is so because it reduces the possibility
+of using query sectors to target elements
+And, It would've been easier is it was created in html. But, if that
+ happens, the form would appear at the top of the page. This is not ideal
+*/
+addNewReviews = (review) => {
+	const form = document.createElement('form');
+	const nameInput = document.createElement('input');
+	nameInput.setAttribute('class', 'name-input');
+	nameInput.setAttribute('type', 'text');
+	nameInput.setAttribute('placeholder', 'Enter your name..');
+	form.appendChild(nameInput);
 
-var focusedElementBeforeModal;
-const modal = document.getElementById('modal');
-const modalOverlay = document.querySelector('.modal-overlay');
+	const ratingInput = document.createElement('input');
+	ratingInput.setAttribute('class', 'rating-input');
+	ratingInput.setAttribute('type', 'number');
+	ratingInput.setAttribute('placeholder', 'Enter rating..');
+	form.appendChild(ratingInput);
 
-// Adapted from modal dialog sample code in Udacity Web Accessibility course 891
-const openModal = () => {
-  // Save current focus
-  focusedElementBeforeModal = document.activeElement;
-
-  // Listen for and trap the keyboard
-  modal.addEventListener('keydown', trapTabKey);
-
-  // Listen for indicators to close the modal
-  modalOverlay.addEventListener('click', closeModal);
-  // Close btn
-  const closeBtn = document.querySelector('.close-btn');
-  closeBtn.addEventListener('click', closeModal);
-
-  // submit form
-  const form = document.getElementById('review-form');
-  form.addEventListener('submit', saveAddReview, false);
-
-  // Find all focusable children
-  var focusableElementsString = 'a[href], area[href], input:not([disabled]),' +
-    'select:not([disabled]), textarea:not([disabled]), button:not([disabled]),' + 
-    'iframe, object, embed, [tabindex="0"], [contenteditable]';
-  var focusableElements = modal.querySelectorAll(focusableElementsString);
-  // Convert NodeList to Array
-  focusableElements = Array.prototype.slice.call(focusableElements);
-
-  var firstTabStop = focusableElements[0];
-  var lastTabStop = focusableElements[focusableElements.length - 1];
-
-  // Show the modal and overlay
-  modal.classList.add('show');
-  modalOverlay.classList.add('show');
-
-  // Focus first child
-  // firstTabStop.focus();
-  const reviewName = document.getElementById('reviewName');
-  reviewName.focus();
-
-  function trapTabKey(e) {
-    // Check for TAB key press
-    if (e.keyCode === 9) {
-
-      // SHIFT + TAB
-      if (e.shiftKey) {
-        if (document.activeElement === firstTabStop) {
-          e.preventDefault();
-          lastTabStop.focus();
+	const reviewInput = document.createElement('textarea');
+	reviewInput.setAttribute('class', 'review-input');
+	reviewInput.setAttribute('type', 'text');
+	reviewInput.setAttribute('placeholder', 'Enter review here');
+	form.appendChild(reviewInput);
+  buttonClick = (event) => {
+    event.preventDefault();
+      let reviewObject = {
+          "restaurant_id": self.restaurant.id,
+          "name": nameInput.value,
+          "createdAt": (new Date()).getTime(),
+          "updatedAt": (new Date()).getTime(),
+          "rating": parseInt(ratingInput.value),
+          "comments": reviewInput.value 
         }
-
-      // TAB
-      } else {
-        if (document.activeElement === lastTabStop) {
-          e.preventDefault();
-          firstTabStop.focus();
+        if((reviewObject.rating < 0 ) || (reviewObject.rating > 5) ||
+          (reviewObject.name === "") || (reviewObject.rating === "") || 
+          (reviewObject.comments === "")){
+         window.alert(`Oh, Sorry. Your rating must be a value from 0 to 5, inclusive
+          And none of the fields should be empty.`)
+        }else{
+			
+			// Make the request
+			DBHelper.postRestaurantReview(reviewObject);
+         
         }
-      }
-    }
+        //show success alert
+      successMessage.style.display = "block";
+        //Hide alert after 4 sec
+        setTimeout(function(){
+          successMessage.style.display = "none";
+        }, 4000);
 
-    // ESCAPE
-    if (e.keyCode === 27) {
-      closeModal();
-    }
+        form.reset();
   }
-};
 
-const saveAddReview = (e) => {
-  e.preventDefault();
+	const reviewButton = document.createElement('button');
+	reviewButton.setAttribute('class', 'review-button');
+	reviewButton.addEventListener("click", buttonClick);
+	reviewButton.innerHTML = "Submit Review";
+	form.appendChild(reviewButton);
 
-  const name = document.querySelector('#reviewName').value;
-  const rating = document.querySelector('input[name=rate]:checked').value;
-  const comments = document.querySelector('#reviewComments').value;
-  
-  // console.log(name);
-  // console.log(rating);
-  // console.log(comments);
+	const successMessage = document.createElement('h4')
+	successMessage.setAttribute("class", "heading");
+	successMessage.innerHTML = "Your review has been posted. Thank you.";
+	successMessage.style.display = 'none';
+	form.appendChild(successMessage);
 
-  DBHelper.createRestaurantReview(self.restaurant.id, name, rating, comments,
-    (error, review) => {
-    console.log('got callback');
-    if (error) {
-      console.log('Error saving review');
-    } else {
-      // do some other stuff
-      console.log(review);
-      window.location.href = `/restaurant.html?id=${self.restaurant.id}`;
-    }
-  });
-};
-
-const closeModal = () => {
-  // Hide the modal and overlay
-  modal.classList.remove('show');
-  modalOverlay.classList.remove('show');
-
-  const form = document.getElementById('review-form');
-  form.reset();
-  // Set focus back to element that had it before the modal was opened
-  focusedElementBeforeModal.focus();
-};
-
-const setFocus = (evt) => {
-  const rateRadios = document.getElementsByName('rate');
-  const rateRadiosArr = Array.from(rateRadios);
-  const anyChecked = rateRadiosArr.some(radio => { 
-    return radio.checked === true; 
-  });
-  if (!anyChecked) {
-    const star1 = document.getElementById('star1');
-    star1.focus();
-  }
-};
-
-// this code is done for proper a11y & keyboard nav
-const navRadioGroup = (evt) => {
-  const star1 = document.getElementById('star1');  
-  const star2 = document.getElementById('star2');  
-  const star3 = document.getElementById('star3');  
-  const star4 = document.getElementById('star4');  
-  const star5 = document.getElementById('star5');  
-
-  if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(evt.key)) {
-    evt.preventDefault();
-    // console.log('attempting return');
-    if (evt.key === 'ArrowRight' || evt.key === 'ArrowDown') {
-      switch(evt.target.id) {
-        case 'star1':
-          star2.focus();
-          star2.checked = true;
-          break;
-        case 'star2':
-          star3.focus();
-          star3.checked = true;
-          break;
-        case 'star3':
-          star4.focus();
-          star4.checked = true;
-          break;
-        case 'star4':
-          star5.focus();
-          star5.checked = true;
-          break;
-        case 'star5':
-          star1.focus();
-          star1.checked = true;
-          break;
-      }
-    } else if (evt.key === 'ArrowLeft' || evt.key === 'ArrowUp') {
-      switch(evt.target.id) {
-        case 'star1':
-          star5.focus();
-          star5.checked = true;
-          break;
-        case 'star2':
-          star1.focus();
-          star1.checked = true;
-          break;
-        case 'star3':
-          star2.focus();
-          star2.checked = true;
-          break;
-        case 'star4':
-          star3.focus();
-          star3.checked = true;
-          break;
-        case 'star5':
-          star4.focus();
-          star4.checked = true;
-          break;
-      }
-    }
-  }
-};
+	
+	return form;
+	
+}
+  const modal = document.getElementById('modal-body');
+		modal.appendChild(addNewReviews());
