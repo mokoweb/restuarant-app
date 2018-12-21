@@ -79,38 +79,44 @@ fetchRestaurantFromURL = (callback) => {
 /**
  * Create restaurant HTML and add it to the webpage
  */
+fillRestaurantHTML = (restaurant = self.restaurant) => {
   
-  const fillRestaurantHTML = (restaurant = self.restaurant) => {
   const name = document.getElementById('restaurant-name');
   name.innerHTML = restaurant.name;
 
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
 
-  const favBtn = document.getElementById('restaurant-fav');
+const favBtn = document.createElement('button');
+  favBtn.className = 'fas fa-heart';
+  favBtn.setAttribute('aria-label', 'favorite');
   if (restaurant.is_favorite === 'true') {
     favBtn.classList.add('active');
     favBtn.setAttribute('aria-pressed', 'true');
-    favBtn.title = `Click to Remove ${restaurant.name} as a favorite`;
+    //favBtn.innerHTML = `Click To Remove ${restaurant.name} as a Favorite`;
+    favBtn.title = `Click To Remove ${restaurant.name} as a Favorite`;
   } else {
     favBtn.setAttribute('aria-pressed', 'false');
-    
-    favBtn.title = `Click to Add ${restaurant.name} as a favorite`;
+    //favBtn.innerHTML = `Click To Add ${restaurant.name} as a Favorite`;
+    favBtn.title = `Click To Add ${restaurant.name} as a favorite`;
   }
+
+  //add a listener to the FavBtn
   favBtn.addEventListener('click', (evt) => {
     evt.preventDefault();
     if (favBtn.classList.contains('active')) {
       favBtn.setAttribute('aria-pressed', 'false');
-      favBtn.title = `Click to Add ${restaurant.name} as a favorite`;
+      //favBtn.innerHTML = `Click To Add ${restaurant.name} as a favorite`;
+      favBtn.title = `Click To Add ${restaurant.name} as a favorite`;
       DBHelper.unSetFavorite(restaurant.id);
     } else {
       favBtn.setAttribute('aria-pressed', 'true');
-      favBtn.title = `Click to Remove ${restaurant.name} as a favorite`;
+      //favBtn.innerHTML = `Click To Remove ${restaurant.name} as a favorite`;
+      favBtn.title = `Click To Remove ${restaurant.name} as a favorite`;
       DBHelper.setFavorite(restaurant.id);
     }
-    favorite.classList.toggle('active');
+    favBtn.classList.toggle('active');
   });
-
 
   const image = document.getElementById('restaurant-img');
   image.className = 'restaurant-img'
@@ -153,44 +159,49 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  * Create all reviews HTML and add them to the webpage.
  */
  
- fillReviewsHTML = (error, reviews = self.restaurant.reviews) => {
 
+const fillReviewsHTML = (error, reviews) => {
+  self.restaurant.reviews = reviews;
 
   if (error) {
     console.log('Error retrieving reviews', error);
   }
 
-  const container = document.getElementById('reviews-container');
+
+  //add review button
   const header = document.getElementById('reviews-header');
+  const addReview = document.createElement('button');
+  addReview.classList.add('review-add-btn');
+  addReview.innerHTML = '+';
+  addReview.setAttribute('aria-label', 'add review');
+  addReview.title = 'Click To Add a Review';
+  addReview.addEventListener('click', toggleModal);
+  header.appendChild(addReview);
+  
+  const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
   title.className = 'review-title';
   title.innerHTML = 'Reviews';
-  header.appendChild(title);
-
-  //add review button
-  const addReview = document.createElement('button');
-  addReview.classList.add('review-add-btn');
-  addReview.innerHTML = '&#43';
-  addReview.setAttribute('aria-label', 'add a review');
-  addReview.title = 'Add a Review';
-  addReview.addEventListener('click', toggleModal);
-  header.appendChild(addReview);
-
+  container.appendChild(title);
 
   if (!reviews) {
-	  
-    console.log(reviews); //this logs undefined
     const noReviews = document.createElement('p');
     noReviews.innerHTML = 'No reviews yet!';
     container.appendChild(noReviews);
     return;
-  }else{
+  }
   const ul = document.getElementById('reviews-list');
   reviews.forEach(review => {
     ul.appendChild(createReviewHTML(review));
   });
   container.appendChild(ul);
-  }
+  
+  
+  
+  
+  
+  
+  
 }
 
 /**
@@ -199,24 +210,21 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 createReviewHTML = (review) => {
  	const li = document.createElement('li');
 
- 	const heading = document.createElement('div');
- 	heading.className = 'header-review';
- 	li.appendChild(heading);
+ 	const header = document.createElement('div');
+ 	header.className = 'header-review';
+ 	li.appendChild(header);
 
  	const name = document.createElement('span');
  	name.className = 'name-review';
  	name.innerHTML = review.name;
- 	heading.appendChild(name);
+ 	header.appendChild(name);
 
  	const date = document.createElement('span');
  	date.className = 'date-review';
-	const updatedAt = new Date(review.updatedAt).toLocaleDateString();
-	date.innerHTML = ` | ${updatedAt}`; 
- 	heading.appendChild(date);
-	
-	
-	
-	
+	const updatedDate = new Date(review.updatedAt).toLocaleDateString();
+	date.innerHTML = ` | ${updatedDate}`; 
+ 	header.appendChild(date);
+
  	const body = document.createElement('div');
  	body.className = 'review-body';
  	li.appendChild(body);
@@ -275,7 +283,6 @@ getParameterByName = (name, url) => {
 const toggleModal = (evt) => {
   evt.preventDefault();
   const modal = document.getElementById('modal');
-  
   modal.classList.toggle('show');
 };
 
@@ -299,7 +306,6 @@ const openModal = () => {
 
   // submit form
   const form = document.getElementById('review-form');
-  
   form.addEventListener('submit', saveAddReview, false);
 
   // Find all focusable children
@@ -360,8 +366,7 @@ const saveAddReview = (e) => {
   // console.log(rating);
   // console.log(comments);
 
-  DBHelper.createRestaurantReview(self.restaurant.id, name, rating, comments
-  /**,
+  DBHelper.createRestaurantReview(self.restaurant.id, name, rating, comments,
     (error, review) => {
     console.log('got callback');
     if (error) {
@@ -371,7 +376,7 @@ const saveAddReview = (e) => {
       console.log(review);
       window.location.href = `/restaurant.html?id=${self.restaurant.id}`;
     }
-  } **/);
+  });
 };
 
 const closeModal = () => {
