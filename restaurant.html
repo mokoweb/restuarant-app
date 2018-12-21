@@ -27,7 +27,7 @@
   <button class="close-btn" aria-label="close" title="Close">x</button>
   <div id="review-form-container">
     <h2 id="add-review-header">Add Review</h2>
-    <form id="review-form">
+    <form id="review-form" onsubmit="saveAddReview">
       <div class="fieldset">
         <label for="reviewName">Name</label>
         <input type="text" name="reviewName" id="reviewName" required>
@@ -59,7 +59,8 @@
           cols="20" rows="5" required></textarea>
       </div>
       <div class="fieldset right">
-        <button id="submit-review-btn">Save</button>
+       <!--- <button id="submit-review-btn">Save</button> --->
+       <input type="submit" value="Save" id="submit-review-btn">
       </div>
     </form>
   </div>
