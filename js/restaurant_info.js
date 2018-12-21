@@ -315,30 +315,27 @@ getParameterByName = (name, url) => {
 }
 
 /*
-This function is really long. This is so because it reduces the possibility
-of using query sectors to target elements
-And, It would've been easier is it was created in html. But, if that
- happens, the form would appear at the top of the page. This is not ideal
+Add Reviews Form
 */
-addNewReviews = (review) => {
+addReviewForm = (review) => {
 	const form = document.createElement('form');
-	const nameInput = document.createElement('input');
-	nameInput.setAttribute('class', 'name-input');
-	nameInput.setAttribute('type', 'text');
-	nameInput.setAttribute('placeholder', 'Enter your name..');
-	form.appendChild(nameInput);
+	const name = document.createElement('input');
+	name.setAttribute('class', 'name');
+	name.setAttribute('type', 'text');
+	name.setAttribute('placeholder', 'Input your name..');
+	form.appendChild(name);
 
-	const ratingInput = document.createElement('input');
-	ratingInput.setAttribute('class', 'rating-input');
-	ratingInput.setAttribute('type', 'number');
-	ratingInput.setAttribute('placeholder', 'Enter rating..');
-	form.appendChild(ratingInput);
+	const rating = document.createElement('input');
+	rating.setAttribute('class', 'rating');
+	rating.setAttribute('type', 'number');
+	rating.setAttribute('placeholder', 'Number From 1 - 5');
+	form.appendChild(rating);
 
-	const reviewInput = document.createElement('textarea');
-	reviewInput.setAttribute('class', 'review-input');
-	reviewInput.setAttribute('type', 'text');
-	reviewInput.setAttribute('placeholder', 'Enter review here');
-	form.appendChild(reviewInput);
+	const reviewBody = document.createElement('textarea');
+	reviewBody.setAttribute('class', 'review-body');
+	reviewBody.setAttribute('type', 'text');
+	reviewBody.setAttribute('placeholder', 'Input Your Review');
+	form.appendChild(reviewBody);
   buttonClick = (event) => {
     event.preventDefault();
       let reviewObject = {
@@ -349,11 +346,12 @@ addNewReviews = (review) => {
           "rating": parseInt(ratingInput.value),
           "comments": reviewInput.value 
         }
+		
+		//validation
         if((reviewObject.rating < 0 ) || (reviewObject.rating > 5) ||
           (reviewObject.name === "") || (reviewObject.rating === "") || 
           (reviewObject.comments === "")){
-         window.alert(`Oh, Sorry. Your rating must be a value from 0 to 5, inclusive
-          And none of the fields should be empty.`)
+         window.alert(`Your rating must be a value from 1 to 5, all fields are required.`)
         }else{
 			
 			// Make the request
@@ -387,4 +385,15 @@ addNewReviews = (review) => {
 	
 }
   const modal = document.getElementById('modal-body');
-		modal.appendChild(addNewReviews());
+		modal.appendChild(addReviewForm());
+		
+//Register ServiceWorker
+
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(() => { 
+    console.log("Service Worker Registered."); 
+  }).catch(() => {
+    console.log("Service Worker Registration failed");
+  });
+}
+
