@@ -52,25 +52,7 @@ self.addEventListener('install', function(event) {
 
 self.addEventListener('fetch', function(event) {
 	
-	var request = event.request;
-  if (request.method === "POST") {
-    event.respondWith(
-          // Try to POST form data to server
-          fetch(request)
-          .catch(function() {
-          // If it doesn't work, post a message to reassure user
-          self.clients.matchAll().then(function (clients){
-            clients.forEach(function(client){
-              client.postMessage({
-                msg: "Post unsuccessful! Server will be updated when connection is re-established.",
-                url: request.url
-              });
-            });
-          });
-        })
-          )}
-	
-	
+	var request = event.request;	
   event.respondWith(
     caches.match(request)
       .then(function(response) {
@@ -108,6 +90,38 @@ self.addEventListener('fetch', function(event) {
         );
       })
     );
+});
+
+self.addEventListener('sync', async (event) => {
+  if (event.tag == 'syncFavorites') {
+    event.waitUntil(
+      SyncHelper.syncFavorites().catch((err) => {
+        if (event.lastChance) {
+          SyncHelper.clearStore('offlineFavorites');
+        }
+      }),
+    );
+  }
+  if (event.tag == 'syncReviews') {
+    event.waitUntil(
+      SyncHelper.syncReviews()
+        .then(function() {
+          self.registration.showNotification('Review Posted!');
+        })
+        .catch((err) => {
+          if (event.lastChance) {
+            self.registration.showNotification(
+              'Some of your reviews have failed to be posted online',
+            );
+            SyncHelper.clearStore('offlineReviews');
+          } else {
+            self.registration.showNotification(
+              'Some reviews not be posted online, but they will be saved offline for now',
+            );
+          }
+        }),
+    );
+  }
 });
 
 self.addEventListener('message', (event) => {
