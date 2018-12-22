@@ -338,6 +338,8 @@ class DBHelper {
   return `http://localhost:${port}/restaurants`;
   }
   
+  
+
   static OpenIndexDB(){
   //service worker
   if (!window.navigator.serviceWorker){
@@ -352,10 +354,20 @@ class DBHelper {
     let DbStore = upgradeDb.createObjectStore('restaurantDB', {
       keyPath: 'id'
     });
-    DbStore.createIndex("use-id", "id");
-  });
-  return dbPromise;
-}
+const reviewStore = upgradeDb.createObjectStore('reviews', { keyPath: 'id' });
+      reviewStore.createIndex('restaurant_id', 'restaurant_id');
+      reviewStore.createIndex('date', 'createdAt');
+
+      upgradeDb.createObjectStore('offlineFavorites', { keyPath: 'restaurant_id' });
+
+      const offlineReviewStore = upgradeDb.createObjectStore('offlineReviews', {
+        keyPath: 'id',
+        autoIncrement: true,
+      });
+      offlineReviewStore.createIndex('restaurant_id', 'restaurant_id');
+      offlineReviewStore.createIndex('date', 'createdAt');
+    });
+  }
 
     /**
    * Fetch all restaurants. **/
@@ -608,7 +620,7 @@ static postRestaurantReview(reviewObject) {
   static async saveOfflineReview(reviewObject, callback) {
     try {
       if (navigator.serviceWorker && window.SyncManager) {
-        const db = await DBHelper.openDatabase();
+        const db = await DBHelper.OpenIndexDB();
         if (!db) return;
         const tx = db.transaction('offlineReviews', 'readwrite');
         const store = tx.objectStore('offlineReviews');
