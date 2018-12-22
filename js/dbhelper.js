@@ -602,5 +602,47 @@ static postRestaurantReview(reviewObject) {
            .catch(error => console.error('Error:', error));
 }
 
+/**
+   * Add offline review.
+   */
+  static async saveOfflineReview(reviewObject, callback) {
+    try {
+      if (navigator.serviceWorker && window.SyncManager) {
+        const db = await DBHelper.openDatabase();
+        if (!db) return;
+        const tx = db.transaction('offlineReviews', 'readwrite');
+        const store = tx.objectStore('offlineReviews');
+        store.put(reviewObject);
+        callback(null, reviewObject);
+        // Request for notification permission
+        if (Notification.permission !== 'granted') {
+          await DBHelper.requestNotificationPermission();
+        }
+        // register a sync
+        navigator.serviceWorker.ready
+          .then((reg) => {
+            return reg.sync.register('syncReviews');
+          })
+          .catch((err) => console.log(err));
+      } else {
+		DBHelper.postRestaurantReview(reviewObject);
+        //DBHelper.postReview(review, callback);
+      }
+    } catch (error) {
+      callback('Error adding review!', null);
+    }
+  }
+  
+ 
+  
+  static async requestNotificationPermission() {
+    const response = await Notification.requestPermission();
+    if (response === 'granted') {
+      return true;
+    }
+    return false;
+  }
+
+
 }
 

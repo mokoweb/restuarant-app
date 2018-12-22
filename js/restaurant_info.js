@@ -321,8 +321,17 @@ addReviewForm = (review) => {
         }else{
 			
 			// Make the request
-			DBHelper.postRestaurantReview(reviewObject);
-         
+			//DBHelper.postRestaurantReview(reviewObject);
+         //save to Offline
+		  DBHelper.saveOfflineReview(reviewObject, (error, review) => {
+		 // addButton.setAttribute('disabled', false);
+		  if (error) {
+			alert('Could not add review');
+			return;
+		  }
+      createReviewHTML(review, true);
+    });
+		 
         }
         //show success alert
       successMessage.style.display = "block";
