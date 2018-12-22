@@ -246,40 +246,6 @@ createReviewHTML = (review) => {
     ratings.appendChild(rating);
   }
  body.appendChild(ratings);
- 
-  const editBtn = document.createElement('button');
-  //editBtn.id = 'review-edit-btn' + i;
-  editBtn.classList.add('review_btn');
-  editBtn.classList.add('review-edit-btn');
-  editBtn.dataset.reviewId = review._id;
-  editBtn.innerHTML = 'Edit';
-  editBtn.setAttribute('aria-label', 'edit review');
-  editBtn.title = 'Edit Review';
-  //editBtn.addEventListener('click', (e) => openEditReviewModal(e, review));
-  
-    ratings.appendChild(editBtn);
-  
- //body.appendChild(ratings);
- 
-  const delBtn = document.createElement('button');
-  //delBtn.id = 'review-del-btn' + i;
-  delBtn.classList.add('review_btn');
-  delBtn.classList.add('review-del-btn');
-  delBtn.dataset.reviewId = review._id;
-  delBtn.dataset.restaurantId = review._parent_id;
-  delBtn.dataset.reviewName = review.name;
-  delBtn.innerHTML = 'x';
-  delBtn.setAttribute('aria-label', 'delete review');
-  delBtn.title = 'Delete Review';
-  // delBtn.addEventListener('click', delReview);
-  //delBtn.addEventListener('click', openConfirmDeleteModal);
-  ratings.appendChild(delBtn);
-
-  //li.appendChild(ctrlDiv);
-  //body.appendChild(ratings);
- 
-	
-	
 
  	const comments = document.createElement('p');
  	comments.innerHTML = review.comments;
