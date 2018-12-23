@@ -51,20 +51,57 @@ self.addEventListener('install', function(event) {
 
 // intercept all fetch requests
 // return cached asset, idb data, or fetch from network
-self.addEventListener('fetch', e => {
-  const request = e.request;
+self.addEventListener('fetch', event => {
+  const request = event.request;
   const requestUrl = new URL(request.url);
   
-  // 1. filter Ajax Requests
+
   if (requestUrl.port === '1337') {
-    e.respondWith(idbRestaurantResponse(request));
+    if (request.url.includes('reviews')) {                    
+      let id = +requestUrl.searchParams.get('restaurant_id');  
+      event.respondWith(idbReviewResponse(request, id));       
+    } else {                                                   
+      event.respondWith(idbRestaurantResponse(request));
+    }
   }
   else {
-    e.respondWith(cacheResponse(request));
+    event.respondWith(cacheResponse(request));
   }
 });
 
 
+
+let j = 0;
+function idbReviewResponse(request, id) {
+  getAllIdx('reviews', 'restaurant_id', id) {
+    return dbPromise.then(db => {
+      return db
+        .transaction(store)
+        .objectStore(store)
+        .index(idx)
+        .getAll(key)
+    .then(reviews => {
+      if (reviews.length) {
+        return reviews;
+      }
+      return fetch(request)
+        .then(response => response.json())
+        .then(json => {
+          json.forEach(review => {
+            console.log('fetch idb review write', ++j, review.id, review.name);
+            idbKeyVal.set('reviews', review);
+          });
+          return json;
+        });
+    })
+    .then(response => new Response(JSON.stringify(response)))
+    .catch(error => {
+      return new Response(error, {
+        status: 404,
+        statusText: 'Bad request'
+      });
+    });
+}
 
 let k = 0;
 function idbRestaurantResponse(request, id) {
