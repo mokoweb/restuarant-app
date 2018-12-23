@@ -575,13 +575,56 @@ static storeResponseToIDB(restaurants){
     return marker;
   } 
 
+
+//offline reviews
+static async fetchStoredRestaurantReviews(id) {
+    const db = await DBHelper.openDatabase();
+    //if we showing posts or very first time of the page loading.
+    //we don't need to go to idb
+    if (!db) return;
+
+    const tx = db.transaction('reviews');
+    const store = tx.objectStore('reviews');
+    const index = store.index('restaurant_id', 'date');
+
+    return index.getAll(id);
+  }
+
 //grab all reviews using id
   static fetchReviewsById(id, callback) {
-    fetch(`http://localhost:1337/reviews/?restaurant_id=${id}`)
-      .then(resp => resp.json())
-      .then(data => callback(null, data))
-      .catch(err => callback(err, null));
+let reviews = [];
+    let storedReviews = [];
+    let offlineReviews = [];
+
+    if (navigator.serviceWorker) {
+      storedReviews = await DBHelper.getStoredRestaurantReviews(Number(id));
+      // get offline reviews that havent been synced
+      offlineReviews = await DBHelper.getOfflineReviews(Number(id));
+    }
+
+    reviews = [...(storedReviews && storedReviews), ...(offlineReviews && offlineReviews)];
+    // if we have data to show then we pass it immediately.
+    if (reviews && reviews.length > 0) {
+      callback(null, reviews);
+    }
+    try {
+      const response = await fetch(`${DBHelper.DATABASE_URL}/reviews/?restaurant_id=${id}`);
+      if (response.status === 200) {
+        // Got a success response from server!
+        const reviews = await response.json();
+        if (navigator.serviceWorker) DBHelper.addReviewsToIDB(reviews);
+        // update webpage with new data
+        callback(null, [...reviews, ...(offlineReviews && offlineReviews)]);
+      } else {
+        callback('Could not fetch reviews', null);
+      }
+    } catch (error) {
+      callback(error, null);
+    }
   }
+
+
+
 //functions to mark and Unmark Favorite button
   static setFavorite(id) {
     //console.log('favorite restuarant ID:', id)

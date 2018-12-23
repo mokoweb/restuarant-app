@@ -321,18 +321,14 @@ addReviewForm = (review) => {
         }else{
 			
 			// Make the request
-			//DBHelper.postRestaurantReview(reviewObject);
-         //save to Offline
+
+         //save to OfflineDB
 		  DBHelper.saveOfflineReview(reviewObject, (error, review) => {
-		 // addButton.setAttribute('disabled', false);
-		  if (error) {
-			alert('Could not add review');
-			return;
-		  }
-      createReviewHTML(review, true);
-    });
 		 
-        }
+		    if (error) {
+        console.log('We are offline. Review has been saved to the queue.');
+        //diplay error message
+      } else {
         //show success alert
       successMessage.style.display = "block";
         //Hide alert after 4 sec
@@ -341,6 +337,12 @@ addReviewForm = (review) => {
         }, 4000);
 
         form.reset();
+      }
+      createReviewHTML(review, true);
+    });
+		 
+        }
+        
   }
 
 	const reviewButton = document.createElement('button');

@@ -49,6 +49,54 @@ self.addEventListener('install', function(event) {
 
 
 
+// intercept all fetch requests
+// return cached asset, idb data, or fetch from network
+self.addEventListener('fetch', e => {
+  const request = e.request;
+  const requestUrl = new URL(request.url);
+  
+  // 1. filter Ajax Requests
+  if (requestUrl.port === '1337') {
+    e.respondWith(idbRestaurantResponse(request));
+  }
+  else {
+    e.respondWith(cacheResponse(request));
+  }
+});
+
+
+
+let k = 0;
+function idbRestaurantResponse(request, id) {
+  // return ALL records from objectStore if more than one
+  // if no match then fetch json, write to idb, & return response
+
+  return dbPromise.then(db => {
+      return db
+        .transaction(store)
+        .objectStore(store)
+        .getAll().then(restaurants => {
+      if (restaurants.length) {
+        return restaurants;
+      }
+      return fetch(request)
+        .then(response => response.json())
+        .then(json => {
+          json.forEach(restaurant => {  
+            console.log('fetch idb write', ++k, restaurant.id, restaurant.name);
+            idbKeyVal.set('restaurants', restaurant); 
+          });
+          return json;
+        });
+    })
+    .then(response => new Response(JSON.stringify(response)))
+    .catch(error => {
+      return new Response(error, {
+        status: 404,
+        statusText: 'Bad request'
+      });
+    });
+}
 
 self.addEventListener('fetch', function(event) {
 	
