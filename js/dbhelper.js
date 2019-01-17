@@ -468,6 +468,7 @@ static storeResponseToIDB(restaurants){
 
    }
 
+
    static fetchDataFromIDB(){
   return DBHelper.OpenIndexDB().then(db => {
     if(!db) return;
@@ -484,10 +485,15 @@ static storeResponseToIDB(restaurants){
    * Fetch a restaurant by its ID.
    */
    static fetchRestaurantById(id) {
-    return DBHelper.fetchRestaurants()
-      .then(restaurants => restaurants.find(r => r.id === id));
+    return DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        return error;
+      } else {
+     return restaurants.find(r => r.id === id);
+      
   }
-
+});
+  }
   /**
    * Fetch restaurants by a cuisine type with proper error handling.
    */
