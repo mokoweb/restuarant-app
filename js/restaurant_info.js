@@ -263,3 +263,46 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+/**
+ * Add review.
+ */
+
+// Form validation & submission
+addReview = () => {
+  event.preventDefault();
+  // Getting the data from the modal form
+  const restaurantId = self.restaurant.id;
+  let reviewAuthor = document.getElementById('name').value;
+  let reviewRating = document.querySelector('#rating option:checked').value;
+  let reviewComment = document.getElementById('comment').value;
+
+  // Close Modal
+  closeModal();
+
+  // Add data to DOM
+  const ReviewObject = {
+    "restaurant_id": parseInt(restaurantId),
+    "name": reviewAuthor,
+    "rating": parseInt(reviewRating),
+    "comments": reviewComment,
+    "createdAt": (new Date()).getTime()
+  };
+  // post review
+  DBHelper.postReview(ReviewObject);
+  addReviewHTML(ReviewObject);
+  document.getElementById('review-form').reset();
+}
+
+addReviewHTML = (review) => {
+  if (document.getElementById('no-review')) {
+    document.getElementById('no-review').remove();
+  }
+  const container = document.getElementById('reviews-container');
+  const ul = document.getElementById('reviews-list');
+
+  //insert the new review on top
+  ul.insertBefore(createReviewHTML(review), ul.firstChild);
+  container.appendChild(ul);
+}
+
