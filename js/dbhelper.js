@@ -469,6 +469,19 @@ static storeResponseToIDB(restaurants){
    }
 
 
+  /**
+   * Add offline review.
+   */
+  static addOfflineReview(review) {
+        return DBHelper.OpenIndexDB().then(db => {
+        if (!db) return;
+        const tx = db.transaction('offlineReviews', 'readwrite');
+        const store = tx.objectStore('offlineReviews');
+        store.put(review);
+        return tx.complete;
+         });
+}
+
    static fetchDataFromIDB(){
   return DBHelper.OpenIndexDB().then(db => {
     if(!db) return;
@@ -525,11 +538,12 @@ static storeResponseToIDB(restaurants){
       .catch(error => console.log('error:', error));
   }
 
+
+
 static processOffline() {
     window.addEventListener('online', (event) => {
   console.log('Open offline queue & return cursor');
-    return this.dbPromise()
-      .then(db => {
+     return DBHelper.OpenIndexDB().then(db => {
       if (!db) return;
       const tx = db.transaction(['offlineReviews'], 'readwrite');
       const store = tx.objectStore('offlineReviews');
@@ -569,7 +583,7 @@ static processOffline() {
             console.log('Received updated record from DB Server', data);
 
             // 1. Delete http request record from offline store
-            dbPromise.then(db => {
+             return DBHelper.OpenIndexDB().then(db => {
               const tx = db.transaction(['offlineReviews'], 'readwrite');
               tx.objectStore('offlineReviews').delete(offline_key);
               return tx.complete;
