@@ -306,3 +306,27 @@ addReviewHTML = (review) => {
   container.appendChild(ul);
 }
 
+/**
+ * Handle modal actions.
+ */
+const modal = document.getElementById('reviewModal');
+const closeModalBtn = document.getElementById('closeBtn');
+
+closeModalBtn.addEventListener('click', closeModal);
+window.addEventListener('click', close);
+
+function openModal() {
+  modal.style.display = 'block';
+  document.getElementById('addReview').addEventListener('click', addReview);
+}
+
+function closeModal() {
+  modal.style.display = 'none';
+}
+
+function close(ev) {
+  if (ev.target == modal) {
+    closeModal();
+  }
+}
+
