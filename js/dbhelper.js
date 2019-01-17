@@ -481,6 +481,51 @@ static storeResponseToIDB(restaurants){
 
    }
 
+    static postReview(review) {
+    let offline_obj = {
+      name: 'addReview',
+      data: review,
+      object_type: 'review'
+    };
+
+    let reviewSend = {
+      "name": review.name,
+      "rating": parseInt(review.rating),
+      "comments": review.comments,
+      "restaurant_id": parseInt(review.restaurant_id)
+    };
+
+    // Check if online
+    if (!navigator.onLine && (offline_obj.name === 'addReview')) {
+      DBHelper.addOfflineReview(reviewSend).then(
+      DBHelper.processQueue())
+      .catch(err=> console.error(err, 'error adding offline review'));
+      return;
+    }
+    
+    console.log('Sending review: ', reviewSend);
+    var fetch_options = {
+      method: 'POST',
+      body: JSON.stringify(reviewSend),
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      })
+    };
+    fetch(`http://localhost:1337/reviews`, fetch_options).then((response) => {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.indexOf('application/json') !== -1) {
+          return response.json();
+        } else {
+          return 'API call successfull'
+        }
+      })
+      .then((data) => {
+        console.log(`Fetch successful!`)
+      })
+      .catch(error => console.log('error:', error));
+  }
+
+
   /**
    * Fetch a restaurant by its ID.
    */
