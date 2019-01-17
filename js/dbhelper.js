@@ -393,6 +393,51 @@ static fetchRestaurantFromServer() {
 
    }
 
+
+
+  static fetchStoredObjectById(table, idx, id) {
+    return this.dbPromise()
+      .then(db => {
+        if (!db) return;
+
+        const store = db.transaction(table).objectStore(table);
+        const indexId = store.index(idx);
+        return indexId.getAll(id);
+      });
+  }
+
+/**fecth review by restaurant Id **/
+static fetchReviewsByRestaurantId(id) {
+    return fetch(`${DBHelper.DATABASE_URL}reviews/?restaurant_id=${id}`)
+      .then(response => response.json())
+      .then(reviews => {
+        this.dbPromise()
+          .then(db => {
+            if (!db) return;
+
+            let tx = db.transaction('reviews', 'readwrite');
+            const store = tx.objectStore('reviews');
+            if (Array.isArray(reviews)) {
+              reviews.forEach(review => {
+                store.put(review);
+              });
+            } else {
+              store.put(reviews);
+            }
+          });
+
+        return Promise.resolve(reviews);
+      })
+      .catch(error => {
+        return DBHelper.fetchStoredObjectById('reviews', 'restaurant', id)
+          .then((storedReviews) => {
+            return Promise.resolve(storedReviews);
+          })
+      });
+  }
+
+
+
     /**
    * function to store Response To IndexDB
    */
