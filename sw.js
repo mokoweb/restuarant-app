@@ -9,12 +9,8 @@ const offlineUrl = "index.html";
    "/css/styles.css",
    "/data/restaurants.json",
    "/js/dbhelper.js",
-   "/js/main.js",  
-	"/js/sw.js",  
+   "/js/main.js",    
    "/js/restaurant_info.js",
-   "https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css",
-   "https://code.jquery.com/jquery-3.3.1.slim.min.js",
-   "https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js",
     '/img/1.jpg',
     '/img/2.jpg',
     '/img/3.jpg',
@@ -49,97 +45,10 @@ self.addEventListener('install', function(event) {
 
 
 
-// intercept all fetch requests
-// return cached asset, idb data, or fetch from network
-self.addEventListener('fetch', event => {
-  const request = event.request;
-  const requestUrl = new URL(request.url);
-  
-
-  if (requestUrl.port === '1337') {
-    if (request.url.includes('reviews')) {                    
-      let id = +requestUrl.searchParams.get('restaurant_id');  
-      event.respondWith(idbReviewResponse(request, id));       
-    } else {                                                   
-      event.respondWith(idbRestaurantResponse(request));
-    }
-  }
-  else {
-    event.respondWith(cacheResponse(request));
-  }
-});
-
-
-
-let j = 0;
-function idbReviewResponse(request, id) {
-  getAllIdx('reviews', 'restaurant_id', id) {
-    return dbPromise.then(db => {
-      return db
-        .transaction(store)
-        .objectStore(store)
-        .index(idx)
-        .getAll(key)
-    .then(reviews => {
-      if (reviews.length) {
-        return reviews;
-      }
-      return fetch(request)
-        .then(response => response.json())
-        .then(json => {
-          json.forEach(review => {
-            console.log('fetch idb review write', ++j, review.id, review.name);
-            idbKeyVal.set('reviews', review);
-          });
-          return json;
-        });
-    })
-    .then(response => new Response(JSON.stringify(response)))
-    .catch(error => {
-      return new Response(error, {
-        status: 404,
-        statusText: 'Bad request'
-      });
-    });
-}
-
-let k = 0;
-function idbRestaurantResponse(request, id) {
-  // return ALL records from objectStore if more than one
-  // if no match then fetch json, write to idb, & return response
-
-  return dbPromise.then(db => {
-      return db
-        .transaction(store)
-        .objectStore(store)
-        .getAll().then(restaurants => {
-      if (restaurants.length) {
-        return restaurants;
-      }
-      return fetch(request)
-        .then(response => response.json())
-        .then(json => {
-          json.forEach(restaurant => {  
-            console.log('fetch idb write', ++k, restaurant.id, restaurant.name);
-            idbKeyVal.set('restaurants', restaurant); 
-          });
-          return json;
-        });
-    })
-    .then(response => new Response(JSON.stringify(response)))
-    .catch(error => {
-      return new Response(error, {
-        status: 404,
-        statusText: 'Bad request'
-      });
-    });
-}
 
 self.addEventListener('fetch', function(event) {
-	
-	var request = event.request;	
   event.respondWith(
-    caches.match(request)
+    caches.match(event.request)
       .then(function(response) {
         // Cache hit - return response
         if (response) {
@@ -150,7 +59,7 @@ self.addEventListener('fetch', function(event) {
         // can only be consumed once. Since we are consuming this
         // once by cache and once by the browser for fetch, we need
         // to clone the response.
-        var fetchRequest = request.clone();
+        var fetchRequest = event.request.clone();
 
         return fetch(fetchRequest).then(
           function(response) {
@@ -167,7 +76,7 @@ self.addEventListener('fetch', function(event) {
 
             caches.open(CACHE_NAME)
               .then(function(cache) {
-                cache.put(request, responseToCache);
+                cache.put(event.request, responseToCache);
               });
 
             return response;
@@ -175,42 +84,4 @@ self.addEventListener('fetch', function(event) {
         );
       })
     );
-});
-
-self.addEventListener('sync', async (event) => {
-  if (event.tag == 'syncFavorites') {
-    event.waitUntil(
-      SyncHelper.syncFavorites().catch((err) => {
-        if (event.lastChance) {
-          SyncHelper.clearStore('offlineFavorites');
-        }
-      }),
-    );
-  }
-  if (event.tag == 'syncReviews') {
-    event.waitUntil(
-      SyncHelper.syncReviews()
-        .then(function() {
-          self.registration.showNotification('Review Posted!');
-        })
-        .catch((err) => {
-          if (event.lastChance) {
-            self.registration.showNotification(
-              'Some of your reviews have failed to be posted online',
-            );
-            SyncHelper.clearStore('offlineReviews');
-          } else {
-            self.registration.showNotification(
-              'Some reviews not be posted online, but they will be saved offline for now',
-            );
-          }
-        }),
-    );
-  }
-});
-
-self.addEventListener('message', (event) => {
-  if (event.data.action === 'skipWaiting') {
-    self.skipWaiting();
-  }
 });

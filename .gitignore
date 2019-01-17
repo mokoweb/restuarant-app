@@ -1,5 +1,2 @@
-# build, dist, & tmp directories
-build/
-dist/
-tmp/
+
 js/dbhelper.js

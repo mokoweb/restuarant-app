@@ -327,19 +327,14 @@ class DBHelper {
    * Database URL.
    * Change this to restaurants.json file location on your server.
    */
-   
  static get DATABASE_URL() {
-
-    // Change this to your server port
-    const port = 1337; 
+    const port = 1337; // Change this to your server port
     //return './data/restaurants.json';
   //return 'https://mokoweb.github.io/restaurant-app/data/restaurants.json';
 
   return `http://localhost:${port}/restaurants`;
   }
   
-  
-
   static OpenIndexDB(){
   //service worker
   if (!window.navigator.serviceWorker){
@@ -352,23 +347,12 @@ class DBHelper {
   let dbPromise = idb.open('restaurant-db', 1, (upgradeDb) =>{
       
     let DbStore = upgradeDb.createObjectStore('restaurantDB', {
-      keyPath: 'id', unique: true
+      keyPath: 'id'
     });
-
-const reviewStore = upgradeDb.createObjectStore('reviews', { keyPath: 'id' }, { autoIncrement: true });
-    
-     
-
-      upgradeDb.createObjectStore('offlineFavorites', { keyPath: 'restaurant_id' });
-
-      const offlineReviewStore = upgradeDb.createObjectStore('offlineReviews', {
-        keyPath: 'id',
-        autoIncrement: true,
-      });
-      offlineReviewStore.createIndex('restaurant_id', 'restaurant_id');
-      offlineReviewStore.createIndex('date', 'createdAt');
-    });
-  }
+    DbStore.createIndex("use-id", "id");
+  });
+  return dbPromise;
+}
 
     /**
    * Fetch all restaurants. **/
@@ -575,207 +559,16 @@ static storeResponseToIDB(restaurants){
       marker.addTo(newMap);
     return marker;
   } 
-
-
-//offline reviews
-static async fetchStoredRestaurantReviews(id) {
-    const db = await DBHelper.openDatabase();
-    //if we showing posts or very first time of the page loading.
-    //we don't need to go to idb
-    if (!db) return;
-
-    const tx = db.transaction('reviews');
-    const store = tx.objectStore('reviews');
-    const index = store.index('restaurant_id', 'date');
-
-    return index.getAll(id);
-  }
-
-//grab all reviews using id
-  static fetchReviewsById(id, callback) {
-let reviews = [];
-    let storedReviews = [];
-    let offlineReviews = [];
-
-    if (navigator.serviceWorker) {
-      storedReviews = await DBHelper.getStoredRestaurantReviews(Number(id));
-      // get offline reviews that havent been synced
-      offlineReviews = await DBHelper.getOfflineReviews(Number(id));
-    }
-
-    reviews = [...(storedReviews && storedReviews), ...(offlineReviews && offlineReviews)];
-    // if we have data to show then we pass it immediately.
-    if (reviews && reviews.length > 0) {
-      callback(null, reviews);
-    }
-    try {
-      const response = await fetch(`${DBHelper.DATABASE_URL}/reviews/?restaurant_id=${id}`);
-      if (response.status === 200) {
-        // Got a success response from server!
-        const reviews = await response.json();
-        if (navigator.serviceWorker) DBHelper.addReviewsToIDB(reviews);
-        // update webpage with new data
-        callback(null, [...reviews, ...(offlineReviews && offlineReviews)]);
-      } else {
-        callback('Could not fetch reviews', null);
-      }
-    } catch (error) {
-      callback(error, null);
-    }
-  }
-
-
-
-//functions to mark and Unmark Favorite button
-  static setFavorite(id) {
-    //console.log('favorite restuarant ID:', id)
-  fetch(`${DBHelper.DATABASE_URL}/${id}/?is_favorite=true`, {
-    method: 'PUT'
-  });
-}
-
-
-// http://localhost:1337/restaurants/<restaurant_id>/?is_favorite=false
-static unSetFavorite(id) {
-   //console.log('favorite restuarant ID:' + id)
-  fetch(`${DBHelper.DATABASE_URL}/${id}/?is_favorite=false`, {
-    method: 'PUT'
-  });
-}
-
-// post review to server
-static postRestaurantReview(review) {
-
-    return dbPromise.then(db => {
-      const tx = db.transaction('reviews', 'readwrite');
-      const pk = tx
-        .objectStore('reviews')
-        .put(review);
-      tx.complete;
-      return pk;
-    }).then(id => {
-      console.log('storedReviews to IDB: ', review);
-      return id;
-    });
-}
-
-/**
-   * Add offline review.
-   */
-  static saveOfflineReview(reviewObject, callback) {
-
-     DBHelper.postRestaurantReview(reviewObject)
-        .then(review_key => {
-          // Get review_key and save it with review to offline queue
-          console.log('returned review_key', review_key);
-          DBHelper.addRequestToQueue(url, headers, method, data, review_key)
-            .then(offline_key => console.log('offline_key', offline_key));
-        });
-      callback(err, null);
-  }
-	
-
-  static processQueue() {
-  // Open offline queue & return cursor
-  dbPromise.then(db => {
-    if (!db) return;
-    const tx = db.transaction(['offline'], 'readwrite');
-    const store = tx.objectStore('offline');
-    return store.openCursor();
-  })
-    .then(function nextRequest (cursor) {
-      if (!cursor) {
-        console.log('cursor done.');
-        return;
-      }
-      console.log('cursor', cursor.value.data.name, cursor.value.data);
-
-      const offline_key = cursor.key;
-      const url = cursor.value.url;
-      const headers = cursor.value.headers;
-      const method = cursor.value.method;
-      const data = cursor.value.data;
-      const review_key = cursor.value.review_key;
-      const body = JSON.stringify(data);
-
-      // update server with HTTP POST request & get updated record back        
-      fetch(url, {
-        headers: headers,
-        method: method,
-        body: body
-      })
-        .then(response => response.json())
-        .then(data => {
-          // data is returned record
-          console.log('Received updated record from DB Server', data);
-          // test if this is a review or favorite update
-
-          // 1. Delete http request record from offline store
-          dbPromise.then(db => {
-            const tx = db.transaction(['offline'], 'readwrite');
-            tx.objectStore('offline').delete(offline_key);
-            return tx.complete;
-          })
-            .then(() => {
-              // 2. Add new review record to reviews store
-              // 3. Delete old review record from reviews store 
-              dbPromise.then(db => {
-                const tx = db.transaction(['reviews'], 'readwrite');
-                return tx.objectStore('reviews').put(data)
-                  .then(() => tx.objectStore('reviews').delete(review_key))
-                  .then(() => {
-                    console.log('tx complete reached.');
-                    return tx.complete;
-                  })
-                  .catch(err => {
-                    tx.abort();
-                    console.log('transaction error: tx aborted', err);
-                  });
-              })
-                .then(() => console.log('review transaction success!'))
-                .catch(err => console.log('reviews store error', err));
-            })
-            .then(() => console.log('offline rec delete success!'))
-            .catch(err => console.log('offline store error', err));
-        }).catch(err => {
-          console.log('fetch error. we are offline.');
-          console.log(err);
-          return;
-        });
-      return cursor.continue().then(nextRequest);
-    })
-    .then(() => console.log('Done cursoring'))
-    .catch(err => console.log('Error opening cursor', err));
-}	
- static addRequestToQueue(url, headers, method, data, review_key) {
-  const request = {
-    url: url,
-    headers: headers,
-    method: method,
-    data: data,
-    review_key: review_key
-  };
-  return dbPromise.then(db => {
-      const tx = db.transaction('offline', 'readwrite');
-      const pk = tx
-        .objectStore('offline')
-        .put(request);
-      tx.complete;
-      return pk;
-    })then(id => {
-      console.log('Saved to IDB: offline', request);
-      return id;
-    });
-}
-  
-  static async requestNotificationPermission() {
-    const response = await Notification.requestPermission();
-    if (response === 'granted') {
-      return true;
-    }
-    return false;
-  }
-
+  /* static mapMarkerForRestaurant(restaurant, map) {
+    const marker = new google.maps.Marker({
+      position: restaurant.latlng,
+      title: restaurant.name,
+      url: DBHelper.urlForRestaurant(restaurant),
+      map: map,
+      animation: google.maps.Animation.DROP}
+    );
+    return marker;
+  } */
 
 }
 
