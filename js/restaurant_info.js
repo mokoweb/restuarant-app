@@ -161,10 +161,20 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
  */
 fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   const container = document.getElementById('reviews-container');
+  const ul = document.getElementById('reviews-list');
   const title = document.createElement('h3');
   title.className = 'review-title';
   title.innerHTML = 'Reviews';
-  container.appendChild(title);
+  container.insertBefore(title, ul);
+
+   // Add review button
+  const addReview = document.createElement('button');
+  addReview.textContent = 'Add review';
+  addReview.setAttribute('type', 'button');
+  addReview.setAttribute('class', 'btn');
+  addReview.setAttribute('id', 'add-review');
+  addReview.onclick = (event) => openModal();
+  container.appendChild(addReview);
 
   if (!reviews) {
     const noReviews = document.createElement('p');
@@ -172,7 +182,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
     container.appendChild(noReviews);
     return;
   }
-  const ul = document.getElementById('reviews-list');
+ 
   reviews.forEach(review => {
     ul.appendChild(createReviewHTML(review));
   });
