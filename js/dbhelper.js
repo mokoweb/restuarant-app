@@ -332,9 +332,12 @@ class DBHelper {
     //return './data/restaurants.json';
   //return 'https://mokoweb.github.io/restaurant-app/data/restaurants.json';
 
-  return `http://localhost:${port}/restaurants`;
+  return `http://localhost:${port}/`;
   }
-  
+    static get RESTAURANTS_URL() {
+    return `${this.DATABASE_URL}restaurants/`;
+  }
+
   static OpenIndexDB(){
   //service worker
   if (!window.navigator.serviceWorker){
@@ -344,15 +347,24 @@ class DBHelper {
   
   //for indexDB
 
-  let dbPromise = idb.open('restaurant-db', 1, (upgradeDb) =>{
-      
-    let DbStore = upgradeDb.createObjectStore('restaurantDB', {
-      keyPath: 'id'
+    return idb.open('restaurant-db', 2, function (upgradeDb) {
+      switch (upgradeDb.oldVersion) {
+        case 0:
+          upgradeDb.createObjectStore('restaurantDB', {
+            keyPath: 'id'
+          });
+        case 1:
+          const reviewsStore = upgradeDb.createObjectStore('reviews', {
+            keyPath: 'id'
+          });
+          reviewsStore.createIndex('restaurant', 'restaurant_id');
+         case 2:
+         upgradeDb.createObjectStore('offlineReviews', { autoIncrement: true });
+      }
     });
-    DbStore.createIndex("use-id", "id");
-  });
-  return dbPromise;
-}
+  }
+
+
 
     /**
    * Fetch all restaurants. **/
@@ -382,7 +394,7 @@ class DBHelper {
    * get restaurants data from the server
    */
 static fetchRestaurantFromServer() {
-  return fetch(DBHelper.DATABASE_URL)
+  return fetch(DBHelper.RESTAURANTS_URL)
     .then(resp => {
       return resp.json();
     })
@@ -396,7 +408,7 @@ static fetchRestaurantFromServer() {
 
 
   static fetchStoredObjectById(table, idx, id) {
-    return this.dbPromise()
+    return DBHelper.OpenIndexDB()
       .then(db => {
         if (!db) return;
 
@@ -411,7 +423,7 @@ static fetchReviewsByRestaurantId(id) {
     return fetch(`${DBHelper.DATABASE_URL}reviews/?restaurant_id=${id}`)
       .then(response => response.json())
       .then(reviews => {
-        this.dbPromise()
+         return DBHelper.OpenIndexDB()
           .then(db => {
             if (!db) return;
 
@@ -607,7 +619,7 @@ static storeResponseToIDB(restaurants){
 
    //functions to mark and Unmark Favorite button
   static setFavorite(id) { 
-  fetch(`${DBHelper.DATABASE_URL}restaurants/${id}/?is_favorite=true`, {
+  fetch(`${DBHelper.RESTAURANTS_URL}${id}/?is_favorite=true`, {
     method: 'PUT'
   });
 }
@@ -615,7 +627,7 @@ static storeResponseToIDB(restaurants){
 
 // http://localhost:1337/restaurants/<restaurant_id>/?is_favorite=false
 static unSetFavorite(id) { 
-  fetch(`${DBHelper.DATABASE_URL}restaurants/${id}/?is_favorite=false`, {
+  fetch(`${DBHelper.RESTAURANTS_URL}${id}/?is_favorite=false`, {
     method: 'PUT'
   });
 }
