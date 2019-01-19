@@ -469,20 +469,6 @@ static storeResponseToIDB(restaurants){
 
    }
 
-static storeReviewToIDB(reviews){
-  return DBHelper.OpenIndexDB().then(db => {
-    if(!db) return;
-    let tx = db.transaction("reviews", "readwrite");
-    let Dbstore = tx.objectStore("reviews");
-    reviews.forEach(review => {
-      Dbstore.put(review);
-
-    });
-    return tx.complete;
-  });
-
-   }
-
   /**
    * Add offline review.
    */
@@ -602,8 +588,7 @@ static processOffline() {
               .catch(err => console.log('offline store error', err));
             
           }).catch(err => {
-            console.log('fetch error.');
-            console.log(err);
+            console.log(err, 'fetch error.');
             return;
           });
         return cursor.continue().then(nextRequest);
