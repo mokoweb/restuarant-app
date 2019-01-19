@@ -355,9 +355,9 @@ class DBHelper {
           });
         case 1:
           const reviewsStore = upgradeDb.createObjectStore('reviews', {
-            keyPath: 'id'
+            keyPath: 'id', autoIncrement: true
           });
-          reviewsStore.createIndex('restaurant', 'restaurant_id');
+          reviewsStore.createIndex('restaurant_id', 'restaurant_id');
          case 2:
          upgradeDb.createObjectStore('offlineReviews', { autoIncrement: true });
       }
@@ -419,33 +419,34 @@ static fetchRestaurantFromServer() {
   }
 
 /**fecth review by restaurant Id **/
-static fetchReviewsByRestaurantId(id) {
-    return fetch(`${DBHelper.DATABASE_URL}reviews/?restaurant_id=${id}`)
+static fetchReviewsByRestaurantId(id, callback) {
+
+    fetch(`${DBHelper.DATABASE_URL}reviews/?restaurant_id=${id}`)
       .then(response => response.json())
       .then(reviews => {
-         return DBHelper.OpenIndexDB()
-          .then(db => {
-            if (!db) return;
 
-            let tx = db.transaction('reviews', 'readwrite');
-            const store = tx.objectStore('reviews');
-            if (Array.isArray(reviews)) {
-              reviews.forEach(review => {
-                store.put(review);
+          
+          //storeReviewToIDB(reviews)
+          return DBHelper.OpenIndexDB().then(db => {
+          if(!db) return;
+          let tx = db.transaction("reviews", "readwrite");
+          let Dbstore = tx.objectStore("reviews");
+          reviews.forEach(review => {
+            Dbstore.put(review);
+
               });
-            } else {
-              store.put(reviews);
-            }
-          });
-
-        return Promise.resolve(reviews);
-      })
+           callback(null, reviews);
+        });
+        })  
       .catch(error => {
-        return DBHelper.fetchStoredObjectById('reviews', 'restaurant', id)
+        console.log('fetching from IDB couldn"t fetch from server');
+        return DBHelper.fetchStoredObjectById('reviews', 'restaurant_id', id)
           .then((storedReviews) => {
-            return Promise.resolve(storedReviews);
-          })
+            callback (null, storedReviews); 
+          }).catch(err => callback(err, null));
       });
+
+    
   }
 
 
@@ -468,6 +469,19 @@ static storeResponseToIDB(restaurants){
 
    }
 
+static storeReviewToIDB(reviews){
+  return DBHelper.OpenIndexDB().then(db => {
+    if(!db) return;
+    let tx = db.transaction("reviews", "readwrite");
+    let Dbstore = tx.objectStore("reviews");
+    reviews.forEach(review => {
+      Dbstore.put(review);
+
+    });
+    return tx.complete;
+  });
+
+   }
 
   /**
    * Add offline review.
@@ -604,15 +618,21 @@ static processOffline() {
   /**
    * Fetch a restaurant by its ID.
    */
-   static fetchRestaurantById(id) {
-    return DBHelper.fetchRestaurants((error, restaurants) => {
+  
+  static fetchRestaurantById(id, callback) {
+    // fetch all restaurants with proper error handling.
+    DBHelper.fetchRestaurants((error, restaurants) => {
       if (error) {
-        return error;
+        callback(error, null);
       } else {
-     return restaurants.find(r => r.id === id);
-      
-  }
-});
+        const restaurant = restaurants.find(r => r.id == id);
+        if (restaurant) { // Got the restaurant
+          callback(null, restaurant);
+        } else { // Restaurant does not exist in the database
+          callback('Restaurant does not exist', null);
+        }
+      }
+    });
   }
   /**
    * Fetch restaurants by a cuisine type with proper error handling.

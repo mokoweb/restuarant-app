@@ -12,8 +12,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
  * Initialize leaflet map
  */
 initMap = () => {
-  fetchRestaurantFromURL()
-    .then((restaurant) => {     
+  fetchRestaurantFromURL((error, restaurant) => {
+    if (error) { // Got an error!
+      console.error(error);
+    } else {      
       self.newMap = L.map('map', {
         center: [restaurant.latlng.lat, restaurant.latlng.lng],
         zoom: 16,
@@ -30,31 +32,47 @@ initMap = () => {
       fillBreadcrumb();
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.newMap);
     }
-  ).catch(error => console.error(error));
-}
+  });
+}  
  
- 
+/* window.initMap = () => {
+  fetchRestaurantFromURL((error, restaurant) => {
+    if (error) { // Got an error!
+      console.error(error);
+    } else {
+      self.map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 16,
+        center: restaurant.latlng,
+        scrollwheel: false
+      });
+      fillBreadcrumb();
+      DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
+    }
+  });
+} */
 
 /**
  * Get current restaurant from page URL.
  */
-fetchRestaurantFromURL = () => {
+fetchRestaurantFromURL = (callback) => {
   if (self.restaurant) { // restaurant already fetched!
-    return Promise.resolve(self.restaurant);
+    callback(null, self.restaurant)
+    return;
   }
-  const id = parseInt(getParameterByName('id'));
-  if (!id || id === NaN) { // no id found in URL
-    return Promise.reject('No restaurant id in URL')
+  const id = getParameterByName('id');
+  if (!id) { // no id found in URL
+    error = 'No restaurant id in URL'
+    callback(error, null);
   } else {
-    return DBHelper.fetchRestaurantById(id)
-      .then(restaurant => {
-        if (!restaurant) {
-          return Promise.reject(`Restaurant with ID ${id} was not found`)
-        }
-        self.restaurant = restaurant;
-        fillRestaurantHTML();
-        return restaurant;
-      });
+    DBHelper.fetchRestaurantById(id, (error, restaurant) => {
+      self.restaurant = restaurant;
+      if (!restaurant) {
+        console.error(error);
+        return;
+      }
+      fillRestaurantHTML();
+      callback(null, restaurant)
+    });
   }
 }
 
@@ -114,8 +132,15 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     fillRestaurantHoursHTML();
   }
     // fill reviews
-  DBHelper.fetchReviewsByRestaurantId(restaurant.id)
-    .then(reviews => fillReviewsHTML(reviews));
+
+  DBHelper.fetchReviewsByRestaurantId(restaurant.id, (error, reviews) => {
+   if(error) {
+    console.error(error);
+  }else{ 
+
+    fillReviewsHTML(reviews);
+      }
+});
 }
 
 /**
@@ -188,8 +213,9 @@ createReviewHTML = (review) => {
 
  	const date = document.createElement('span');
  	date.className = 'date-review';
-date.innerHTML = ` | ${review.date}`; 
- 	header.appendChild(date);
+  const updatedDate = new Date(review.createdAt).toLocaleDateString();
+  date.innerHTML = `<span style="float: right;">  | ${updatedDate} </span>`; 
+  header.appendChild(date);
 
  	const body = document.createElement('div');
  	body.className = 'review-body';
