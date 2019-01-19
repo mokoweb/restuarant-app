@@ -183,6 +183,7 @@ nav h1 a {
   background-color: #ccc;
   position: relative; 
   outline: none;
+  z-index: 0;
 }
 
 /* ====================== Restaurant Filtering ====================== */
