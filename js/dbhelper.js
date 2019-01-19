@@ -487,6 +487,7 @@ static storeReviewToIDB(reviews){
    * Add offline review.
    */
   static addOfflineReview(review) {
+        console.log(review, '.....posting')
         return DBHelper.OpenIndexDB().then(db => {
         if (!db) return;
         const tx = db.transaction('offlineReviews', 'readwrite');
@@ -509,23 +510,18 @@ static storeReviewToIDB(reviews){
    }
 
     static postReview(review) {
-    let offline_obj = {
-      name: 'addReview',
-      data: review,
-      object_type: 'review'
-    };
-
+    
     let reviewSend = {
       "name": review.name,
       "rating": parseInt(review.rating),
       "comments": review.comments,
       "restaurant_id": parseInt(review.restaurant_id)
     };
-
+    let addReview = true;
     // Check if online
-    if (!navigator.onLine && (offline_obj.name === 'addReview')) {
-      DBHelper.addOfflineReview(reviewSend).then(
-      DBHelper.processOffline())
+    if (!navigator.onLine && (addReview=== true)) {
+      return DBHelper.addOfflineReview(review)
+      .then(DBHelper.processOffline())
       .catch(err=> console.error(err, 'error adding offline review'));
       return;
     }
@@ -615,6 +611,8 @@ static processOffline() {
       .then(() => console.log('Done cursoring'))
       .catch(err => console.log('Error opening cursor', err));
  }); }
+
+    
   /**
    * Fetch a restaurant by its ID.
    */
