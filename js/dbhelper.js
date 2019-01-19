@@ -573,7 +573,7 @@ static processOffline() {
         method: 'POST',
         headers,
         body: JSON.stringify(body)
-      })
+      }).then(response => response.json())
           .then(data => {
             // data is the returned record
             console.log('Received updated record from DB Server', data);
