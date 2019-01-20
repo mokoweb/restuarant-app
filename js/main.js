@@ -28,6 +28,7 @@ fetchNeighborhoods = () => {
   });
 }
 
+
 /**
  * Set neighborhoods HTML.
  */

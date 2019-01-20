@@ -507,9 +507,8 @@ static storeResponseToIDB(restaurants){
     // Check if online
     if (!navigator.onLine && (addReview=== true)) {
       return DBHelper.addOfflineReview(review)
-      .then(DBHelper.processOffline())
-      .catch(err=> console.error(err, 'error adding offline review'));
-      return;
+      .then(console.log('successfull add to offlineReviews'))
+      .catch(err => console.error(err, 'error adding offlineReviews'));
     }
     
     console.log('Sending review: ', reviewSend);
@@ -535,68 +534,7 @@ static storeResponseToIDB(restaurants){
   }
 
 
-
-static processOffline() {
-    window.addEventListener('online', (event) => {
-  console.log('Open offline queue & return cursor');
-     return DBHelper.OpenIndexDB().then(db => {
-      if (!db) return;
-      const tx = db.transaction(['offlineReviews'], 'readwrite');
-      const store = tx.objectStore('offlineReviews');
-      return store.openCursor();
-    })
-      .then(function nextRequest (cursor) {
-        if (!cursor) {
-          console.log('cursor done.');
-          return;
-        }
-        // console.log('cursor', cursor.value.data.name, cursor.value.data);
-        //console.log('cursor.value', cursor.value.data);
-        console.log('cursor.value', cursor.value);
-        const offline_key = cursor.key;
-       
-        const data = cursor.value;
-        const review_key = cursor.value.review_key;
-        // const body = data ? JSON.stringify(data) : '';
-        const body = data;
-
-        
-       // Setup the request
  
-    
-        var headers = new Headers();
-        // Set some Headers
-        headers.set('Accept', 'application/json');
-          
-
-        fetch(`${DBHelper.DATABASE_URL}reviews`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body)
-      }).then(response => response.json())
-        .then(resp => {
-            // resp is the returned record
-            console.log('Received updated record from DB Server', resp);
-
-            // 1. Delete http request record from offline store
-             return DBHelper.OpenIndexDB().then(db => {
-              const tx = db.transaction(['offlineReviews'], 'readwrite');
-              tx.objectStore('offlineReviews').delete(offline_key);
-              return tx.complete;
-            })
-              .then(() => console.log('offline rec delete success!'))
-              .catch(err => console.log('offline store error', err));
-            
-          }).catch(err => {
-            console.log(err, 'fetch error.');
-            return;
-          });
-        return cursor.continue().then(nextRequest);
-      })
-      .then(() => console.log('Done cursoring'))
-      .catch(err => console.log('Error opening cursor', err));
- }); }
-
     
   /**
    * Fetch a restaurant by its ID.
@@ -761,4 +699,69 @@ static unSetFavorite(id) {
   } */
 
 }
+
+(function () { 
+    
+    window.addEventListener('online', (event) => {
+  console.log('Open offline queue & return cursor');
+     return DBHelper.OpenIndexDB().then(db => {
+      if (!db) return;
+      const tx = db.transaction(['offlineReviews'], 'readwrite');
+      const store = tx.objectStore('offlineReviews');
+      return store.openCursor();
+    })
+      .then(function nextRequest (cursor) {
+        if (!cursor) {
+          console.log('cursor done.');
+          return;
+        }
+        // console.log('cursor', cursor.value.data.name, cursor.value.data);
+        //console.log('cursor.value', cursor.value.data);
+        console.log('cursor.value', cursor.value);
+        const offline_key = cursor.key;
+       
+        const data = cursor.value;
+        const review_key = cursor.value.review_key;
+        // const body = data ? JSON.stringify(data) : '';
+        const body = data;
+
+        
+       // Setup the request
+ 
+    
+        var headers = new Headers();
+        // Set some Headers
+        headers.set('Accept', 'application/json');
+          
+
+        fetch(`${DBHelper.DATABASE_URL}reviews`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+      }).then(response => response.json())
+        .then(resp => {
+            // resp is the returned record
+            console.log('Received updated record from DB Server', resp);
+
+            // 1. Delete http request record from offline store
+             return DBHelper.OpenIndexDB().then(db => {
+              const tx = db.transaction(['offlineReviews'], 'readwrite');
+              tx.objectStore('offlineReviews').delete(offline_key);
+              return tx.complete;
+            })
+              .then(() => console.log('offline rec delete success!'))
+              .catch(err => console.log('offline store error', err));
+            
+          }).catch(err => {
+            console.log(err, 'fetch error.');
+            return;
+          });
+        return cursor.continue().then(nextRequest);
+      })
+      .then(() => console.log('Done cursoring'))
+      .catch(err => console.log('Error opening cursor', err));
+ }); 
+
+  })();
+
 

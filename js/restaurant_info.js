@@ -61,6 +61,7 @@ fetchRestaurantFromURL = (callback) => {
   }
 }
 
+
 /**
  * Create restaurant HTML and add it to the webpage
  */
