@@ -551,11 +551,11 @@ static processOffline() {
           return;
         }
         // console.log('cursor', cursor.value.data.name, cursor.value.data);
+        //console.log('cursor.value', cursor.value.data);
         console.log('cursor.value', cursor.value);
-
         const offline_key = cursor.key;
        
-        const data = cursor.value.data;
+        const data = cursor.value;
         const review_key = cursor.value.review_key;
         // const body = data ? JSON.stringify(data) : '';
         const body = data;
@@ -574,9 +574,9 @@ static processOffline() {
         headers,
         body: JSON.stringify(body)
       }).then(response => response.json())
-          .then(data => {
-            // data is the returned record
-            console.log('Received updated record from DB Server', data);
+        .then(resp => {
+            // resp is the returned record
+            console.log('Received updated record from DB Server', resp);
 
             // 1. Delete http request record from offline store
              return DBHelper.OpenIndexDB().then(db => {
