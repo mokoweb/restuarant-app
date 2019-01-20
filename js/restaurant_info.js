@@ -186,7 +186,7 @@ fillReviewsHTML = (reviews = self.restaurant.reviews) => {
  */
 createReviewHTML = (review) => {
  	const li = document.createElement('li');
-
+  li.setAttribute('id', 'li-review');             
  	const header = document.createElement('div');
  	header.className = 'header-review';
  	li.appendChild(header);
